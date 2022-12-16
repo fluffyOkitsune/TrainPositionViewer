@@ -9,7 +9,7 @@ import javax.swing.event.*;
 import data.Time;
 import data.line_data.LineData;
 import data.time_table.StationData;
-import data.train_data.TrainData;
+import draw.Train;
 
 public class App implements ChangeListener {
     private MainWindow win;
@@ -314,7 +314,7 @@ class MainWindow extends JFrame implements ActionListener {
     }
 }
 
-class Canvas extends JPanel {
+class Canvas extends JPanel implements MouseInputListener {
     static final Dimension SIZE = new Dimension(4000, 3000);
 
     private App app;
@@ -325,6 +325,7 @@ class Canvas extends JPanel {
     Canvas(App app) {
         this.app = app;
         setPreferredSize(Canvas.SIZE);
+        addMouseListener(this);
     }
 
     public void update(Time currentTime, LineData[] lineData) {
@@ -349,11 +350,7 @@ class Canvas extends JPanel {
         }
 
         for (LineData ld : lineData) {
-            for (TrainData td : ld.getTrainData()) {
-                if (td != null) {
-                    ld.drawTrain(g, td, currentTime);
-                }
-            }
+            ld.drawTrain(g);
         }
     }
 
@@ -387,5 +384,43 @@ class Canvas extends JPanel {
             g.setColor(lineData.getLineColor());
             g.drawString(staName, pos.x - rectText.width / 2, pos.y - 20 - rectText.height / 2);
         }
+    }
+
+    // --------------------------------------------------------------------------------
+    // 列車の情報ウィンドウ
+    // --------------------------------------------------------------------------------
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        for (LineData ld : lineData) {
+            for (Train t : ld.getTrain()) {
+                if (t.getOnMouse(e)) {
+                    System.out.println(t.toString());
+                }
+            }
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
     }
 }

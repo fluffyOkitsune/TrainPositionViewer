@@ -9,6 +9,7 @@ import data.time_table.StationData;
 import data.time_table.TimeTable;
 import data.time_table.TimeTableReader;
 import data.train_data.TrainData;
+import draw.Train;
 
 // 路線のデータ
 public abstract class LineData {
@@ -18,7 +19,7 @@ public abstract class LineData {
 
     private StationData[] stationData;
     private TimeTable[] timeTableOut, timeTableIn;
-    private TrainData[] trainData;
+    private Train[] train;
 
     public enum Direction {
         OUTBOUND, INBOUND;
@@ -45,34 +46,35 @@ public abstract class LineData {
     public abstract Point calcPositionOnLinePath(float dist);
 
     public void update(Time currentTime) {
-        Vector<TrainData> vTrainData = new Vector<>();
+        Vector<Train> vTrain = new Vector<>();
 
-        addTrainData(vTrainData, Direction.OUTBOUND, currentTime);
-        addTrainData(vTrainData, Direction.INBOUND, currentTime);
+        addTrainData(vTrain, Direction.OUTBOUND, currentTime);
+        addTrainData(vTrain, Direction.INBOUND, currentTime);
 
-        this.trainData = vTrainData.toArray(new TrainData[0]);
+        this.train = vTrain.toArray(new Train[0]);
     }
 
-    private void addTrainData(Vector<TrainData> trainData, Direction direction, Time currentTime) {
+    private void addTrainData(Vector<Train> trainData, Direction direction, Time currentTime) {
         TimeTable[] timeTable = getTimeTable(direction);
 
         for (int i = 0; i < timeTable.length; i++) {
             TrainData td = timeTable[i].createCurrTrainData(direction, currentTime);
             if (td != null) {
-                trainData.add(td);
+                trainData.add(composeTrainData(td, currentTime));
             }
         }
     }
 
-    public Point calcTrainPos(TrainData trainData, Time currentTime) {
-        float pos = trainData.calcPos(this, currentTime);
-        return calcPositionOnLinePath(pos);
-    }
+    protected abstract Train composeTrainData(TrainData trainData, Time currentTime);
 
     // --------------------------------------------------------------------------------
     // 描画処理
     // --------------------------------------------------------------------------------
-    public abstract void drawTrain(Graphics g, TrainData trainData, Time currentTime);
+    public void drawTrain(Graphics g){
+        for(Train t : train){
+            t.draw(g);
+        }
+    }
 
     public static void drawImage(Graphics g, Image img, Point pos) {
         g.drawImage(img, pos.x - img.getWidth(null) / 2,
@@ -105,7 +107,7 @@ public abstract class LineData {
         throw new IllegalArgumentException(direction.toString());
     }
 
-    public TrainData[] getTrainData() {
-        return trainData;
+    public Train[] getTrain() {
+        return train;
     }
 }

@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 import data.Time;
 import data.line_data.LineData;
 import data.train_data.TrainData;
+import draw.Train;
 
 public class TokaidoLine extends LineData {
     private Image imageIconJT;
@@ -63,28 +64,8 @@ public class TokaidoLine extends LineData {
     }
 
     @Override
-    public void drawTrain(Graphics g, TrainData trainData, Time currentTime) {
-        Point pos = calcTrainPos(trainData, currentTime);
-
-        Image iconImage = getIconImg(trainData);
-
-        // 電車は左側通行なので、下りと上りで描画位置をずらす
-        switch (trainData.getDirection()) {
-            case OUTBOUND:
-                LineData.drawImage(g, iconImage, new Point(pos.x, pos.y + 25));
-
-                // 種別
-                g.setColor(getTypeColor(trainData));
-                LineData.drawString(g, trainData.trainID, new Point(pos.x, pos.y + 60));
-                break;
-            case INBOUND:
-                LineData.drawImage(g, iconImage, new Point(pos.x, pos.y - 25));
-
-                // 種別
-                g.setColor(getTypeColor(trainData));
-                LineData.drawString(g, trainData.trainID, new Point(pos.x, pos.y - 60));
-                break;
-        }
+    protected Train composeTrainData(TrainData trainData, Time currentTime){
+        return new Train(trainData, getIconImg(trainData), this, currentTime);
     }
 
     private Image getIconImg(TrainData trainData) {
