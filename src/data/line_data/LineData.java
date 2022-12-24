@@ -18,7 +18,6 @@ public abstract class LineData {
     public abstract String getLineName();
 
     private StationData[] stationData;
-    private TimeTable[] timeTableOut, timeTableIn;
     private Train[] train;
 
     public enum Direction {
@@ -28,17 +27,34 @@ public abstract class LineData {
     // --------------------------------------------------------------------------------
     // データ作成
     // --------------------------------------------------------------------------------
-    public final void importCSV() throws FileNotFoundException {
-        stationData = StationData.createStationData(getStationDataCsvPath());
-        timeTableOut = TimeTableReader.readTimeTable(this, Direction.OUTBOUND, getTimeTableOutCsvPath());
-        timeTableIn = TimeTableReader.readTimeTable(this, Direction.INBOUND, getTimeTableInCsvPath());
-    }
-
     protected abstract String getStationDataCsvPath();
 
     protected abstract String getTimeTableOutCsvPath();
 
     protected abstract String getTimeTableInCsvPath();
+
+    public final void importCSV() throws FileNotFoundException {
+        // 駅データの入力
+        setStationData(StationData.createStationData(getStationDataCsvPath()));
+
+        // 列車運行データの入力
+        TimeTable[] trainData;
+        Vector<Train> vTrain = new Vector<>();
+
+        trainData = TimeTableReader.readTimeTable(this, Direction.OUTBOUND, getTimeTableOutCsvPath());
+        generateTrainData(vTrain, trainData);
+
+        trainData = TimeTableReader.readTimeTable(this, Direction.INBOUND, getTimeTableInCsvPath());
+        generateTrainData(vTrain, trainData);
+
+        setTrain(vTrain.toArray(new Train[0]));
+    }
+
+    private void generateTrainData(Vector<Train> vTrain, TimeTable[] timeTables){
+        for(TimeTable timeTable : timeTables){
+            vTrain.add(new Train(this, new TrainData(timeTable)));
+        }
+    }
 
     // --------------------------------------------------------------------------------
     // 列車位置を計算する
@@ -46,30 +62,18 @@ public abstract class LineData {
     public abstract Point calcPositionOnLinePath(float dist);
 
     public void update(Time currentTime) {
-        Vector<Train> vTrain = new Vector<>();
-
-        addTrainData(vTrain, Direction.OUTBOUND, currentTime);
-        addTrainData(vTrain, Direction.INBOUND, currentTime);
-
-        this.train = vTrain.toArray(new Train[0]);
-    }
-
-    private void addTrainData(Vector<Train> trainData, Direction direction, Time currentTime) {
-        TimeTable[] timeTable = getTimeTable(direction);
-
-        for (int i = 0; i < timeTable.length; i++) {
-            TrainData td = timeTable[i].createCurrTrainData(direction, currentTime);
-            if (td != null) {
-                trainData.add(composeTrainData(td, currentTime));
-            }
+        for (Train t : train) {
+            t.update(currentTime);
         }
     }
-
-    protected abstract Train composeTrainData(TrainData trainData, Time currentTime);
 
     // --------------------------------------------------------------------------------
     // 描画処理
     // --------------------------------------------------------------------------------
+    public abstract Image getIconImg(TrainData trainData);
+
+    public abstract Color getTypeColor(TrainData trainData);
+
     public void drawTrain(Graphics g){
         for(Train t : train){
             t.draw(g);
@@ -89,6 +93,10 @@ public abstract class LineData {
     // --------------------------------------------------------------------------------
     // インタフェース
     // --------------------------------------------------------------------------------
+    public void setStationData(StationData[] stationData) {
+        this.stationData = stationData;
+    }
+
     public StationData[] getStationData() {
         return stationData;
     }
@@ -97,14 +105,8 @@ public abstract class LineData {
         return stationData.length;
     }
 
-    public final TimeTable[] getTimeTable(Direction direction) {
-        switch (direction) {
-            case OUTBOUND:
-                return timeTableOut;
-            case INBOUND:
-                return timeTableIn;
-        }
-        throw new IllegalArgumentException(direction.toString());
+    public void setTrain(Train[] train) {
+        this.train = train;
     }
 
     public Train[] getTrain() {
