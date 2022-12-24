@@ -69,6 +69,7 @@ public class App implements ChangeListener {
 
         Time currentTime = new Time(hour, min, sec);
 
+        // TODO: 列車単位にする
         for (LineData ld : lineData) {
             ld.update(currentTime);
         }

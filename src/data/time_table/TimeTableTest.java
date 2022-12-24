@@ -6,11 +6,10 @@ import org.junit.Test;
 
 import data.Time;
 import data.line_data.LineData.Direction;
-import data.train_data.TrainData;
 
 public class TimeTableTest {
     public TimeTable createTestData() {
-        TimeTable tt = new TimeTable();
+        TimeTable tt = new TimeTable(Direction.OUTBOUND);
 
         // A:始発駅
         tt.setDeparture(0, "1200");

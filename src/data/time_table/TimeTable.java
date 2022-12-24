@@ -11,6 +11,8 @@ import data.train_data.TrainData;
 
 // 列車の運行時刻データ
 public class TimeTable {
+    public Direction direction;
+
     public String trainID;
     public String trainType;
     public String trainName;
@@ -21,7 +23,7 @@ public class TimeTable {
     // 駅の着発時刻バッファ
     private Map<Integer, TimeData> mapTimeBuf;
 
-    public TimeTable() {
+    public TimeTable(Direction direction) {
         mapTimeBuf = new HashMap<>();
     }
 

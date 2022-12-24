@@ -19,7 +19,7 @@ public class TimeTableReader {
 
         timeTableReader.skipLines(NUM_HEADER_LINE);
 
-        timeTableReader.readTrainID(lineData);
+        timeTableReader.readTrainID(lineData, direction);
         timeTableReader.readTrainType(lineData);
         timeTableReader.readTrainName(lineData);
         timeTableReader.readTrainNo(lineData);
@@ -55,7 +55,7 @@ public class TimeTableReader {
     }
 
     // 列車番号
-    private void readTrainID(LineData lineData) {
+    private void readTrainID(LineData lineData, Direction direction) {
         if (!csvScanner.hasNext()) {
             throw new RuntimeException("行数が不足しています。");
         }
@@ -73,7 +73,7 @@ public class TimeTableReader {
 
         for (int idx = 0; idx < timeTables.length; idx++) {
             // 最初の2要素は行ラベルなので除く。
-            timeTables[idx] = new TimeTable();
+            timeTables[idx] = new TimeTable(direction);
             timeTables[idx].trainID = items[idx + 2];
         }
     }
