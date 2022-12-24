@@ -106,6 +106,8 @@ public class TimeTable {
     // 現在時刻のとき、どの駅間を列車が走行しているか？
     // 列車は着時刻になった瞬間に次の駅に到着したとみなす。
     // 列車は発時刻になった瞬間に次の駅に向けて発車したとみなす。
+
+    // TODO: Trainのpos情報を書き込む処理にして、Trainを追跡可能にする
     public TrainData createCurrTrainData(Direction direction, Time currentTime) {
         // 時刻が設定されていない
         if(timeData == null){

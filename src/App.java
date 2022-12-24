@@ -352,6 +352,8 @@ class Canvas extends JPanel implements MouseInputListener {
         for (LineData ld : lineData) {
             ld.drawTrain(g);
         }
+
+        drawTrainInfo(g, selectedTrain);
     }
 
     private void drawRailLine(Graphics g, LineData lineData) {
@@ -389,15 +391,43 @@ class Canvas extends JPanel implements MouseInputListener {
     // --------------------------------------------------------------------------------
     // 列車の情報ウィンドウ
     // --------------------------------------------------------------------------------
+    private Train selectedTrain;
+
+    private void drawTrainInfo(Graphics g, Train train){
+        if(selectedTrain == null){
+            return;
+        }
+
+        Rectangle rect = train.getRect();
+        int posX = train.getRect().getLocation().x;
+        int posY = train.getRect().getLocation().y;
+
+        g.setColor(Color.RED);
+        g.drawRect(rect.getLocation().x, rect.getLocation().y, rect.width, rect.height);
+
+        posX += 20;
+        posY += 20;
+
+        g.setColor(Color.BLACK);
+        g.fillRect(posX, posY, 120, 60);
+
+        g.setColor(Color.WHITE);
+        g.drawRect(posX, posY, 120, 60);
+
+        g.drawString(train.trainData.trainID, posX + 10, posY + 20);
+    }
+
     @Override
     public void mouseClicked(MouseEvent e) {
+        selectedTrain = null;
         for (LineData ld : lineData) {
             for (Train t : ld.getTrain()) {
                 if (t.getOnMouse(e)) {
-                    System.out.println(t.toString());
+                    selectedTrain = t;
                 }
             }
         }
+        repaint();
     }
 
     @Override

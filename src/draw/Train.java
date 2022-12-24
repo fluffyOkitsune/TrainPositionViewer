@@ -8,7 +8,7 @@ import data.line_data.LineData;
 import data.train_data.TrainData;
 
 public class Train {
-    TrainData trainData;
+    public TrainData trainData;
 
     private Rectangle rect;
     private Image image;
@@ -39,6 +39,10 @@ public class Train {
 
     public boolean getOnMouse(MouseEvent e) {
         return rect.contains(new Point(e.getX(), e.getY()));
+    }
+
+    public Rectangle getRect() {
+        return rect;
     }
 
     @Override
