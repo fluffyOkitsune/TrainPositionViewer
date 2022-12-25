@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.io.File;
@@ -7,7 +6,6 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import data.Time;
 import data.line_data.LineData;
 import data.train_data.TrainData;
 
@@ -39,8 +37,18 @@ public class KeihinTohokuLine extends LineData {
 
     @Override
     public Point calcPositionOnLinePath(float dist) {
-        int x = (int) (200 + 2000 * dist);
-        int y = 200;
+        int x, y;
+        if (dist < 0.3) {
+            x = 200 + (int) (1000 * dist / 0.3);
+            y = 200;
+        } else if (dist < 0.7) {
+            x = 200 + 1000;
+            y = 200 + (int) (1000 * (dist - 0.3) / (0.7 - 0.3));
+
+        } else {
+            x = 200 + 1000 - (int) (1000 * (dist - 0.7) / (1.0 - 0.7));
+            y = 200 + 1000;
+        }
 
         return new Point(x, y);
     }
@@ -61,32 +69,10 @@ public class KeihinTohokuLine extends LineData {
     }
 
     @Override
-    public void drawTrain(Graphics g, TrainData trainData, Time currentTime) {
-        Point pos = calcTrainPos(trainData, currentTime);
+    public Image getIconImg(TrainData trainData) {
+        String trainID = trainData.getTimeTable().trainID;
 
-        Image iconImage = getIconImg(trainData);
-
-        // 電車は左側通行なので、下りと上りで描画位置をずらす
-        switch (trainData.getDirection()) {
-            case OUTBOUND:
-                LineData.drawImage(g, iconImage, new Point(pos.x, pos.y - 25));
-
-                // 種別
-                g.setColor(getTypeColor(trainData));
-                LineData.drawString(g, trainData.trainID, new Point(pos.x, pos.y - 60));
-                break;
-            case INBOUND:
-                LineData.drawImage(g, iconImage, new Point(pos.x, pos.y + 25));
-
-                // 種別
-                g.setColor(getTypeColor(trainData));
-                LineData.drawString(g, trainData.trainID, new Point(pos.x, pos.y + 60));
-                break;
-        }
-    }
-
-    private Image getIconImg(TrainData trainData) {
-        if (trainData.trainID.charAt(trainData.trainID.length() - 1) == 'K') {
+        if (trainID.charAt(trainID.length() - 1) == 'K') {
             // 列車番号の末尾がKの電車は横浜線直通
             return imageIconJH;
         } else {
@@ -97,8 +83,11 @@ public class KeihinTohokuLine extends LineData {
     private static Color COLOR_LOCAL = new Color(0, 178, 229);
     private static Color COLOR_RAPID = new Color(255, 0, 128);
 
-    private Color getTypeColor(TrainData trainData) {
-        switch (trainData.trainType) {
+    @Override
+    public Color getTypeColor(TrainData trainData) {
+        String trainType = trainData.getTimeTable().trainID;
+
+        switch (trainType) {
             case "快速":
                 return COLOR_RAPID;
             default:

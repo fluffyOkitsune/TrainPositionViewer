@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.io.File;
@@ -7,7 +6,6 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import data.Time;
 import data.line_data.LineData;
 import data.train_data.TrainData;
 
@@ -63,36 +61,12 @@ public class TokaidoLine extends LineData {
     }
 
     @Override
-    public void drawTrain(Graphics g, TrainData trainData, Time currentTime) {
-        Point pos = calcTrainPos(trainData, currentTime);
-
-        Image iconImage = getIconImg(trainData);
-
-        // 電車は左側通行なので、下りと上りで描画位置をずらす
-        switch (trainData.getDirection()) {
-            case OUTBOUND:
-                LineData.drawImage(g, iconImage, new Point(pos.x, pos.y + 25));
-
-                // 種別
-                g.setColor(getTypeColor(trainData));
-                LineData.drawString(g, trainData.trainID, new Point(pos.x, pos.y + 60));
-                break;
-            case INBOUND:
-                LineData.drawImage(g, iconImage, new Point(pos.x, pos.y - 25));
-
-                // 種別
-                g.setColor(getTypeColor(trainData));
-                LineData.drawString(g, trainData.trainID, new Point(pos.x, pos.y - 60));
-                break;
-        }
-    }
-
-    private Image getIconImg(TrainData trainData) {
-        if (trainData.trainType.equals("特急")) {
+    public Image getIconImg(TrainData trainData) {
+        if (trainData.getTimeTable().trainType.equals("特急")) {
             return imageIconLtd;
         }
 
-        if (trainData.trainID.charAt(trainData.trainID.length() - 1) == 'Y') {
+        if (trainData.getTimeTable().trainID.charAt(trainData.getTimeTable().trainID.length() - 1) == 'Y') {
             // 列車番号の末尾がYの列車は湘南新宿ライン
             return imageIconJS;
         } else {
@@ -105,8 +79,9 @@ public class TokaidoLine extends LineData {
     private static Color COLOR_RAPID = new Color(246, 139, 30);
     private static Color COLOR_SPECIAL_RAPID = new Color(51, 204, 255);
 
-    private Color getTypeColor(TrainData trainData) {
-        switch (trainData.trainType) {
+    @Override
+    public Color getTypeColor(TrainData trainData) {
+        switch (trainData.getTimeTable().trainType) {
             case "特急":
                 return Color.RED;
             case "特快":

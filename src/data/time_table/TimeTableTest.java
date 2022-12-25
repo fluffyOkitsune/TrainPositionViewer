@@ -2,15 +2,21 @@ package data.time_table;
 
 import static org.junit.Assert.assertEquals;
 
+import java.awt.Color;
+import java.awt.Image;
+import java.awt.Point;
+
 import org.junit.Test;
 
 import data.Time;
+import data.line_data.LineData;
 import data.line_data.LineData.Direction;
 import data.train_data.TrainData;
+import draw.Train;
 
 public class TimeTableTest {
     public TimeTable createTestData() {
-        TimeTable tt = new TimeTable();
+        TimeTable tt = new TimeTable(Direction.OUTBOUND);
 
         // A:始発駅
         tt.setDeparture(0, "1200");
@@ -33,27 +39,104 @@ public class TimeTableTest {
         return tt;
     }
 
+    class TestLineData extends LineData {
+
+        @Override
+        public Color getLineColor() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String getLineName() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        protected String getStationDataCsvPath() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        protected String getTimeTableOutCsvPath() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        protected String getTimeTableInCsvPath() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Point calcPositionOnLinePath(float dist) {
+            return new Point(0, 0);
+        }
+
+        @Override
+        public Image getIconImg(TrainData trainData) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Color getTypeColor(TrainData trainData) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+    }
+
     @Test
     public void TestGetTrainStopping() {
+        LineData lineData = new TestLineData();
+
+        StationData[] testStationDatas = {
+                new StationData("A", 0.0f),
+                new StationData("B", 0.1f),
+                new StationData("C", 0.2f),
+                new StationData("D", 0.3f),
+                new StationData("E", 0.4f)
+        };
+        lineData.setStationData(testStationDatas);
+
         TimeTable timeTable = createTestData();
+        Train[] train = { new Train(lineData, new TrainData(timeTable)) };
+        lineData.setTrain(train);
 
         // 着発が同一駅ID : 駅に停車中
         // A-B
-        assertEquals(0, timeTable.createCurrTrainData(Direction.OUTBOUND, Time.parseTime("1205")).getDepartedStaID());
-        assertEquals(1, timeTable.createCurrTrainData(Direction.OUTBOUND, Time.parseTime("1205")).getDitinationStaID());
+
+        lineData.update(Time.parseTime("1205"));
+        assertEquals(0, train[0].getDepartedStaID());
+        assertEquals(1, train[0].getDitinationStaID());
+
         // B-C
-        assertEquals(1, timeTable.createCurrTrainData(Direction.OUTBOUND, Time.parseTime("1210")).getDepartedStaID());
-        assertEquals(2, timeTable.createCurrTrainData(Direction.OUTBOUND, Time.parseTime("1210")).getDitinationStaID());
+        lineData.update(Time.parseTime("1210"));
+        assertEquals(1, train[0].getDepartedStaID());
+        assertEquals(2, train[0].getDitinationStaID());
+
         // B-C
-        assertEquals(1, timeTable.createCurrTrainData(Direction.OUTBOUND, Time.parseTime("1215")).getDepartedStaID());
-        assertEquals(2, timeTable.createCurrTrainData(Direction.OUTBOUND, Time.parseTime("1215")).getDitinationStaID());
+        lineData.update(Time.parseTime("1215"));
+        assertEquals(1, train[0].getDepartedStaID());
+        assertEquals(2, train[0].getDitinationStaID());
+
         // C
-        assertEquals(2, timeTable.createCurrTrainData(Direction.OUTBOUND, Time.parseTime("1225")).getDepartedStaID());
-        assertEquals(2, timeTable.createCurrTrainData(Direction.OUTBOUND, Time.parseTime("1225")).getDitinationStaID());
+        lineData.update(Time.parseTime("1225"));
+        assertEquals(2, train[0].getDepartedStaID());
+        assertEquals(2, train[0].getDitinationStaID());
+
         // D-E
-        assertEquals(3, timeTable.createCurrTrainData(Direction.OUTBOUND, Time.parseTime("1245")).getDepartedStaID());
-        assertEquals(4, timeTable.createCurrTrainData(Direction.OUTBOUND, Time.parseTime("1245")).getDitinationStaID());
-        assertEquals(4, timeTable.createCurrTrainData(Direction.OUTBOUND, Time.parseTime("1251")).getDepartedStaID());
-        assertEquals(4, timeTable.createCurrTrainData(Direction.OUTBOUND, Time.parseTime("1251")).getDitinationStaID());
+        lineData.update(Time.parseTime("1245"));
+        assertEquals(3, train[0].getDepartedStaID());
+        assertEquals(4, train[0].getDitinationStaID());
+
+        // E
+        lineData.update(Time.parseTime("1251"));
+        assertEquals(4, train[0].getDepartedStaID());
+        assertEquals(4, train[0].getDitinationStaID());
     }
 }

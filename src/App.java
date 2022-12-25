@@ -9,7 +9,7 @@ import javax.swing.event.*;
 import data.Time;
 import data.line_data.LineData;
 import data.time_table.StationData;
-import data.train_data.TrainData;
+import draw.Train;
 
 public class App implements ChangeListener {
     private MainWindow win;
@@ -19,7 +19,7 @@ public class App implements ChangeListener {
     public static void main(String[] args) {
         App app = new App();
         app.win = new MainWindow(app, "テストウィンドウ", 1000, 500);
-        app.updateData();
+        app.update();
         app.win.setVisible(true);
     }
 
@@ -59,21 +59,25 @@ public class App implements ChangeListener {
 
     @Override
     public void stateChanged(ChangeEvent e) {
-        updateData();
+        update();
     }
 
-    private void updateData() {
-        int hour = win.getHour();
-        int min = win.getMin();
-        int sec = win.getSec();
-
-        Time currentTime = new Time(hour, min, sec);
+    private void update() {
+        Time currentTime = getCurrentTime();
 
         for (LineData ld : lineData) {
             ld.update(currentTime);
         }
 
-        win.updateData(currentTime, lineData);
+        win.update();
+    }
+
+    private Time getCurrentTime() {
+        int hour = win.getHour();
+        int min = win.getMin();
+        int sec = win.getSec();
+
+        return new Time(hour, min, sec);
     }
 }
 
@@ -296,8 +300,7 @@ class MainWindow extends JFrame implements ActionListener {
         }
     }
 
-    public void updateData(Time currentTime, LineData[] lineData) {
-        cvs.update(currentTime, lineData);
+    public void update() {
         cvs.repaint();
     }
 
@@ -314,22 +317,15 @@ class MainWindow extends JFrame implements ActionListener {
     }
 }
 
-class Canvas extends JPanel {
+class Canvas extends JPanel implements MouseInputListener {
     static final Dimension SIZE = new Dimension(4000, 3000);
 
     private App app;
 
-    private Time currentTime;
-    private LineData[] lineData;
-
     Canvas(App app) {
         this.app = app;
         setPreferredSize(Canvas.SIZE);
-    }
-
-    public void update(Time currentTime, LineData[] lineData) {
-        this.currentTime = currentTime;
-        this.lineData = lineData;
+        addMouseListener(this);
     }
 
     // --------------------------------------------------------------------------------
@@ -344,17 +340,15 @@ class Canvas extends JPanel {
         g.setColor(BG_COLOR);
         g.fillRect(0, 0, SIZE.width, SIZE.height);
 
-        for (LineData ld : lineData) {
+        for (LineData ld : app.lineData) {
             drawRailLine(g, ld);
         }
 
-        for (LineData ld : lineData) {
-            for (TrainData td : ld.getTrainData()) {
-                if (td != null) {
-                    ld.drawTrain(g, td, currentTime);
-                }
-            }
+        for (LineData ld : app.lineData) {
+            ld.drawTrain(g);
         }
+
+        drawTrainInfo(g, selectedTrain);
     }
 
     private void drawRailLine(Graphics g, LineData lineData) {
@@ -387,5 +381,95 @@ class Canvas extends JPanel {
             g.setColor(lineData.getLineColor());
             g.drawString(staName, pos.x - rectText.width / 2, pos.y - 20 - rectText.height / 2);
         }
+    }
+
+    // --------------------------------------------------------------------------------
+    // 列車の情報ウィンドウ
+    // --------------------------------------------------------------------------------
+    private Train selectedTrain = null;
+
+    private void drawTrainInfo(Graphics g, Train train){
+        if(train == null){
+            return;
+        }
+        if(!train.onDuty){
+            return;
+        }
+
+        Rectangle rect = train.getRect();
+        int posX = train.getRect().getLocation().x;
+        int posY = train.getRect().getLocation().y;
+
+        g.setColor(Color.RED);
+        g.drawRect(rect.getLocation().x, rect.getLocation().y, rect.width, rect.height);
+
+        posX += 20;
+        posY += 20;
+
+        g.setColor(Color.BLACK);
+        g.fillRect(posX, posY, 150, 60);
+
+        g.setColor(train.getTypeColor());
+        g.drawRect(posX, posY, 150, 60);
+
+        // 列車番号 種別
+        g.drawString(train.trainData.getTimeTable().trainID +" " + train.trainData.getTimeTable().trainType, posX + 10, posY + 20);
+        g.drawString(generateTrainNameStr(train), posX + 10, posY + 30);
+        g.drawString(train.getTerminalName() + "行", posX + 10, posY + 40);
+    }
+
+    private String generateTrainNameStr(Train train) {
+        String str = "";
+        String trainName = train.trainData.getTimeTable().trainName;
+        if (trainName.isEmpty()) {
+            return str;
+        }
+        str += "\n" + trainName;
+
+        // 号
+        String trainNo = train.trainData.getTimeTable().trainNo;
+        if (trainNo.isEmpty()) {
+            return str;
+        }
+        str += " " + trainNo + "号";
+
+        return str;
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        selectedTrain = null;
+        for (LineData ld : app.lineData) {
+            for (Train t : ld.getTrain()) {
+                if (t.getOnMouse(e)) {
+                    selectedTrain = t;
+                }
+            }
+        }
+        repaint();
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
     }
 }

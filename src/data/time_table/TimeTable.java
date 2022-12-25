@@ -7,10 +7,11 @@ import java.util.Map;
 
 import data.Time;
 import data.line_data.LineData.Direction;
-import data.train_data.TrainData;
 
 // 列車の運行時刻データ
 public class TimeTable {
+    public Direction direction;
+
     public String trainID;
     public String trainType;
     public String trainName;
@@ -21,7 +22,8 @@ public class TimeTable {
     // 駅の着発時刻バッファ
     private Map<Integer, TimeData> mapTimeBuf;
 
-    public TimeTable() {
+    public TimeTable(Direction direction) {
+        this.direction = direction;
         mapTimeBuf = new HashMap<>();
     }
 
@@ -39,7 +41,7 @@ public class TimeTable {
         if (strTime.equals(" ﾚ") || strTime.equals("レ")) {
             return;
         }
-        
+
         // 時刻データオブジェクトが登録されていない場合は新規に作成する
         if (!mapTimeBuf.containsKey(staID)) {
             mapTimeBuf.put(staID, new TimeData(staID));
@@ -101,46 +103,24 @@ public class TimeTable {
     }
 
     // --------------------------------------------------------------------------------
-    // 列車位置検索
-    // --------------------------------------------------------------------------------
-    // 現在時刻のとき、どの駅間を列車が走行しているか？
-    // 列車は着時刻になった瞬間に次の駅に到着したとみなす。
-    // 列車は発時刻になった瞬間に次の駅に向けて発車したとみなす。
-    public TrainData createCurrTrainData(Direction direction, Time currentTime) {
-        // 時刻が設定されていない
-        if(timeData == null){
-            return null;
-        }
+    public TimeData getTimeData(int stationID) {
+        return timeData[stationID];
+    }
 
-        final Time waitTime = new Time(0,1,0);
-        // 始発駅に停車している場合
-        // FIXME: とりあえず始発駅発車1分前から停車していることにする
-        final int firstStaID = 0;
-        if (currentTime.compareTo(timeData[firstStaID].getDepTime().sub(waitTime)) >= 0 && currentTime.compareTo(timeData[firstStaID].getDepTime()) < 0) {
-            return new TrainData(direction, timeData[firstStaID], timeData[firstStaID], Time.ZERO, this);
-        }
+    public int getTimeDataSize() {
+        return timeData.length;
+    }
 
-        // 終着駅に停車している場合
-        // FIXME: とりあえず終着駅到着1分後まで停車していることにする)
-        final int lastStaID = timeData.length - 1;
-        if (currentTime.compareTo(timeData[lastStaID].getArrTime()) >= 0 && currentTime.compareTo(timeData[lastStaID].getArrTime().add(waitTime)) <= 0) {
-            return new TrainData(direction, timeData[lastStaID], timeData[lastStaID], Time.ZERO, this);
-        }
+    public Time getDepTime(int stationID) {
+        return timeData[stationID].getDepTime();
+    }
 
-        for (int i = 0; i < lastStaID; i++) {
-            if (currentTime.compareTo(timeData[i].getArrTime()) >= 0 && currentTime.compareTo(timeData[i].getDepTime()) < 0) {
-                // 駅に停車している場合
-                return new TrainData(direction, timeData[i], timeData[i], Time.ZERO, this);
-            }
-            if (currentTime.compareTo(timeData[i].getDepTime()) >= 0 && currentTime.compareTo(timeData[i + 1].getArrTime()) < 0) {
-                // 駅間を走行している場合
-                Time requiredTime = timeData[i + 1].getArrTime().sub(timeData[i].getDepTime());
-                return new TrainData(direction, timeData[i], timeData[i + 1], requiredTime, this);
-            }
-        }
+    public Time getArrTime(int stationID) {
+        return timeData[stationID].getArrTime();
+    }
 
-        // この列車は現在時刻では運行していない
-        return null;
+    public int getTerminalStaID() {
+        return timeData[timeData.length - 1].getStaID();
     }
 
     // --------------------------------------------------------------------------------
@@ -150,7 +130,7 @@ public class TimeTable {
                 + trainNo + ", timeTable=" + mapTimeBuf + "]";
     }
 
-    public TimeData getTimeData(int staID) {
+    public TimeData getMapTimeData(int staID) {
         return mapTimeBuf.get(staID);
     }
 
