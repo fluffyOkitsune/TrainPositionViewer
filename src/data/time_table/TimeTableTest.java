@@ -72,7 +72,7 @@ public class TimeTableTest {
         }
 
         @Override
-        public Point calcPositionOnLinePath(float dist) {
+        public Point calcPositionOnLinePath(float dist, Direction direction) {
             return new Point(0, 0);
         }
 
