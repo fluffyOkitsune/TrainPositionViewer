@@ -59,7 +59,7 @@ public abstract class LineData {
     // --------------------------------------------------------------------------------
     // 列車位置を計算する
     // --------------------------------------------------------------------------------
-    public abstract Point calcPositionOnLinePath(float dist);
+    public abstract Point calcPositionOnLinePath(float dist, Direction direction);
 
     public void update(Time currentTime) {
         for (Train t : train) {

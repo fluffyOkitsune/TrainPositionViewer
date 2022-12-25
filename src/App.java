@@ -8,6 +8,7 @@ import javax.swing.event.*;
 
 import data.Time;
 import data.line_data.LineData;
+import data.line_data.LineData.Direction;
 import data.time_table.StationData;
 import draw.Train;
 
@@ -348,6 +349,10 @@ class Canvas extends JPanel implements MouseInputListener {
             ld.drawTrain(g);
         }
 
+        for (LineData ld : app.lineData) {
+            drawStation(g, ld);
+        }
+
         drawTrainInfo(g, selectedTrain);
     }
 
@@ -357,17 +362,30 @@ class Canvas extends JPanel implements MouseInputListener {
 
         // 路線を書く
         int NUM_SEPARATE = 1000;
+
+        // 下り線
         for (int i = 0; i < NUM_SEPARATE; i++) {
-            Point start = lineData.calcPositionOnLinePath((float) i / NUM_SEPARATE);
-            Point end = lineData.calcPositionOnLinePath(((float) i + 1) / NUM_SEPARATE);
+            Point start = lineData.calcPositionOnLinePath((float) i / NUM_SEPARATE, Direction.OUTBOUND);
+            Point end = lineData.calcPositionOnLinePath(((float) i + 1) / NUM_SEPARATE, Direction.OUTBOUND);
             g.drawLine(start.x, start.y, end.x, end.y);
         }
 
+        // 上り線
+        for (int i = 0; i < NUM_SEPARATE; i++) {
+            Point start = lineData.calcPositionOnLinePath((float) i / NUM_SEPARATE, Direction.INBOUND);
+            Point end = lineData.calcPositionOnLinePath(((float) i + 1) / NUM_SEPARATE, Direction.INBOUND);
+            g.drawLine(start.x, start.y, end.x, end.y);
+        }
+    }
+
+    private void drawStation(Graphics g, LineData lineData) {
         // 駅を書く
-        final int radiusOut = 15;
-        final int radiusIn = 10;
+        final int radiusOut = 20;
+        final int radiusIn = 15;
         for (StationData sd : lineData.getStationData()) {
-            Point pos = lineData.calcPositionOnLinePath(sd.getDistProportion());
+            Point posO = lineData.calcPositionOnLinePath(sd.getDistProportion(), Direction.OUTBOUND);
+            Point posI = lineData.calcPositionOnLinePath(sd.getDistProportion(), Direction.INBOUND);
+            Point pos = new Point((posO.x + posI.x) / 2, (posO.y + posI.y) / 2);
 
             // 駅の位置を描画する
             g.setColor(lineData.getLineColor());
@@ -375,11 +393,19 @@ class Canvas extends JPanel implements MouseInputListener {
             g.setColor(Color.WHITE);
             g.fillOval(pos.x - radiusIn / 2, pos.y - radiusIn / 2, radiusIn, radiusIn);
 
+            
             // 駅名を描画する
             String staName = sd.getName();
-            Rectangle rectText = g.getFontMetrics().getStringBounds(staName, g).getBounds();
+
+            // TODO: 縁取り(暫定)
+            g.setColor(Color.WHITE);
+            for (int i = 0; i < 9; i++) {
+                Point offsetPos = new Point(pos.x + i / 3 - 1, pos.y + i % 3 - 1);
+                LineData.drawString(g, staName, offsetPos);
+            }
+
             g.setColor(lineData.getLineColor());
-            g.drawString(staName, pos.x - rectText.width / 2, pos.y - 20 - rectText.height / 2);
+            LineData.drawString(g, staName, pos);
         }
     }
 
@@ -388,11 +414,11 @@ class Canvas extends JPanel implements MouseInputListener {
     // --------------------------------------------------------------------------------
     private Train selectedTrain = null;
 
-    private void drawTrainInfo(Graphics g, Train train){
-        if(train == null){
+    private void drawTrainInfo(Graphics g, Train train) {
+        if (train == null) {
             return;
         }
-        if(!train.onDuty){
+        if (!train.onDuty) {
             return;
         }
 
@@ -413,7 +439,8 @@ class Canvas extends JPanel implements MouseInputListener {
         g.drawRect(posX, posY, 150, 60);
 
         // 列車番号 種別
-        g.drawString(train.trainData.getTimeTable().trainID +" " + train.trainData.getTimeTable().trainType, posX + 10, posY + 20);
+        g.drawString(train.trainData.getTimeTable().trainID + " " + train.trainData.getTimeTable().trainType, posX + 10,
+                posY + 20);
         g.drawString(generateTrainNameStr(train), posX + 10, posY + 30);
         g.drawString(train.getTerminalName() + "行", posX + 10, posY + 40);
     }

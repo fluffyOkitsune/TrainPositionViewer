@@ -231,7 +231,7 @@ public class Train {
     // 描画する列車の位置を計算する
     private Point calcTrainPos(Time currentTime) {
         final float pos = calcPos(currentTime);
-        return lineData.calcPositionOnLinePath(pos);
+        return lineData.calcPositionOnLinePath(pos, this.getDirection());
     }
 
     // 描画する列車の領域を計算する
