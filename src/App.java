@@ -26,13 +26,13 @@ public class App implements ChangeListener {
     App() {
         try {
             // 京浜東北線 (2018[平日])
-            if (true) {
+            if (false) {
                 lineData = new LineData[1];
                 lineData[0] = new KeihinTohokuLine();
             }
 
             // 東海道線（東京 - 熱海） (2018[平日])
-            if (false) {
+            if (true) {
                 lineData = new LineData[1];
                 lineData[0] = new TokaidoLine();
             }
@@ -72,7 +72,7 @@ public class App implements ChangeListener {
         win.update();
     }
 
-    private Time getCurrentTime(){
+    private Time getCurrentTime() {
         int hour = win.getHour();
         int min = win.getMin();
         int sec = win.getSec();
@@ -319,7 +319,7 @@ class MainWindow extends JFrame implements ActionListener {
 
 class Canvas extends JPanel implements MouseInputListener {
     static final Dimension SIZE = new Dimension(4000, 3000);
-    
+
     private App app;
 
     Canvas(App app) {
@@ -407,12 +407,33 @@ class Canvas extends JPanel implements MouseInputListener {
         posY += 20;
 
         g.setColor(Color.BLACK);
-        g.fillRect(posX, posY, 120, 60);
+        g.fillRect(posX, posY, 150, 60);
 
         g.setColor(train.getTypeColor());
-        g.drawRect(posX, posY, 120, 60);
+        g.drawRect(posX, posY, 150, 60);
 
-        g.drawString(train.trainData.getTimeTable().trainID, posX + 10, posY + 20);
+        // 列車番号 種別
+        g.drawString(train.trainData.getTimeTable().trainID +" " + train.trainData.getTimeTable().trainType, posX + 10, posY + 20);
+        g.drawString(generateTrainNameStr(train), posX + 10, posY + 30);
+        g.drawString(train.getTerminalName() + "行", posX + 10, posY + 40);
+    }
+
+    private String generateTrainNameStr(Train train) {
+        String str = "";
+        String trainName = train.trainData.getTimeTable().trainName;
+        if (trainName.isEmpty()) {
+            return str;
+        }
+        str += "\n" + trainName;
+
+        // 号
+        String trainNo = train.trainData.getTimeTable().trainNo;
+        if (trainNo.isEmpty()) {
+            return str;
+        }
+        str += " " + trainNo + "号";
+
+        return str;
     }
 
     @Override

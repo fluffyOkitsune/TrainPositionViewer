@@ -211,6 +211,15 @@ public class Train {
         return trainData.getTimeTable().direction;
     }
 
+    public String getTerminalName() {
+        if (!onDuty) {
+            return "";
+        } else {
+            int terminalStaID = trainData.getTimeTable().getTerminalStaID();
+            return lineData.getStationName(terminalStaID);
+        }
+    }
+
     // --------------------------------------------------------------------------------
     // 列車の描画
     // --------------------------------------------------------------------------------

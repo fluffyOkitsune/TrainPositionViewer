@@ -41,7 +41,7 @@ public class TimeTable {
         if (strTime.equals(" ﾚ") || strTime.equals("レ")) {
             return;
         }
-        
+
         // 時刻データオブジェクトが登録されていない場合は新規に作成する
         if (!mapTimeBuf.containsKey(staID)) {
             mapTimeBuf.put(staID, new TimeData(staID));
@@ -103,20 +103,24 @@ public class TimeTable {
     }
 
     // --------------------------------------------------------------------------------
-    public TimeData getTimeData(int stationID){
+    public TimeData getTimeData(int stationID) {
         return timeData[stationID];
     }
 
-    public int getTimeDataSize(){
+    public int getTimeDataSize() {
         return timeData.length;
     }
 
-    public Time getDepTime(int stationID){
+    public Time getDepTime(int stationID) {
         return timeData[stationID].getDepTime();
     }
 
-    public Time getArrTime(int stationID){
+    public Time getArrTime(int stationID) {
         return timeData[stationID].getArrTime();
+    }
+
+    public int getTerminalStaID() {
+        return timeData[timeData.length - 1].getStaID();
     }
 
     // --------------------------------------------------------------------------------

@@ -101,6 +101,10 @@ public abstract class LineData {
         return stationData;
     }
 
+    public String getStationName(int staID) {
+        return stationData[staID].getName();
+    }
+
     public final int numStation() {
         return stationData.length;
     }

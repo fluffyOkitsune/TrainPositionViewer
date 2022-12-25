@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.io.File;
@@ -7,10 +6,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import data.Time;
 import data.line_data.LineData;
 import data.train_data.TrainData;
-import draw.Train;
 
 public class TokaidoLine extends LineData {
     private Image imageIconJT;
