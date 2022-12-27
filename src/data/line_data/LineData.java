@@ -50,8 +50,8 @@ public abstract class LineData {
         setTrain(vTrain.toArray(new Train[0]));
     }
 
-    private void generateTrainData(Vector<Train> vTrain, TimeTable[] timeTables){
-        for(TimeTable timeTable : timeTables){
+    private void generateTrainData(Vector<Train> vTrain, TimeTable[] timeTables) {
+        for (TimeTable timeTable : timeTables) {
             vTrain.add(new Train(this, new TrainData(timeTable)));
         }
     }
@@ -68,14 +68,35 @@ public abstract class LineData {
     }
 
     // --------------------------------------------------------------------------------
+    // パスを設定する
+    // --------------------------------------------------------------------------------
+    protected Point generateEasyPathPoint(EasyPathPoint[] epp, float dist) {
+        for (int i = 0; i < epp.length; i++) {
+            if (dist < epp[i].getEndPointDist()) {
+                float distBwPoints;
+
+                if (i > 0) {
+                    distBwPoints = epp[i].getEndPointDist() - epp[i - 1].getEndPointDist();
+                    dist -= epp[i - 1].getEndPointDist();
+                } else {
+                    distBwPoints = epp[i].getEndPointDist();
+                }
+                return epp[i].calcPositionOnLinePath(dist / distBwPoints);
+            }
+        }
+
+        return new Point(0, 0);
+    }
+
+    // --------------------------------------------------------------------------------
     // 描画処理
     // --------------------------------------------------------------------------------
     public abstract Image getIconImg(TrainData trainData);
 
     public abstract Color getTypeColor(TrainData trainData);
 
-    public void drawTrain(Graphics g){
-        for(Train t : train){
+    public void drawTrain(Graphics g) {
+        for (Train t : train) {
             t.draw(g);
         }
     }

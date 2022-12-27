@@ -6,6 +6,8 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import data.line_data.ArcPath;
+import data.line_data.EasyPathPoint;
 import data.line_data.LineData;
 import data.train_data.TrainData;
 
@@ -50,26 +52,25 @@ class YamanoteLine extends LineData {
 
     @Override
     public Point calcPositionOnLinePath(float dist, Direction direction) {
-        int centerX = 500;
-        int centerY = 500;
+        Point center = new Point(500, 500);
+        float radius = 0.0f;
 
         // 外回り
         if (direction == Direction.OUTBOUND) {
-            int radius = 400 + 15;
-            int x = centerX - (int) (radius * Math.sin(dist * 2.0 * Math.PI));
-            int y = centerY + (int) (radius * Math.cos(dist * 2.0 * Math.PI));
-            return new Point(x, y);
+            radius = 400 + 15;
         }
-
         // 内回り
         if (direction == Direction.INBOUND) {
-            int radius = 400 - 15;
-            int x = centerX - (int) (radius * Math.sin(dist * 2.0 * Math.PI));
-            int y = centerY + (int) (radius * Math.cos(dist * 2.0 * Math.PI));
-            return new Point(x, y);
+            radius = 400 - 15;
         }
 
-        return new Point(0, 0);
+        EasyPathPoint[] epp = {
+                ArcPath.getInstance(1.0f, center,
+                        radius, 90, 90 + 360),
+                ArcPath.getInstance(Float.MAX_VALUE, center,
+                        radius, 90, 90)
+        };
+        return generateEasyPathPoint(epp, dist);
     }
 
     @Override

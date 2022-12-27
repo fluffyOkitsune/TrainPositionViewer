@@ -6,7 +6,10 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import data.line_data.ArcPath;
+import data.line_data.EasyPathPoint;
 import data.line_data.LineData;
+import data.line_data.LineSegmentPath;
 import data.train_data.TrainData;
 
 public class KeihinTohokuLine extends LineData {
@@ -35,41 +38,61 @@ public class KeihinTohokuLine extends LineData {
         return "京浜東北線・根岸線";
     }
 
+    private Point origin = new Point(200, 200);
+
     @Override
     public Point calcPositionOnLinePath(float dist, Direction direction) {
-        int x, y;
-        float[] point = { 0.0f, 0.3f, 0.7f, 1.0f };
+        float[] point = { 0.0f, 0.3f, 0.4f, 0.6f, 0.7f, 1.0f };
         int offset = 30;
 
         // 南行
         if (direction == Direction.OUTBOUND) {
-            if (dist < point[1]) {
-                x = 200 + (int) ((1000 + offset) * (dist - point[0]) / (point[1] - point[0]));
-                y = 200 - offset;
-            } else if (dist < point[2]) {
-                x = 200 + (1000 + offset);
-                y = 200 - offset + (int) ((1000 + offset + offset) * (dist - point[1]) / (point[2] - point[1]));
-            } else {
-                x = 200 + (1000 + offset) - (int) ((1000 + offset) * (dist - point[2]) / (point[3] - point[2]));
-                y = 200 + (1000 + offset);
-            }
-            return new Point(x, y);
+            EasyPathPoint[] epp = {
+                    LineSegmentPath.getInstance(point[1],
+                            new Point(origin.x + 0, origin.y + 0 - offset),
+                            new Point(origin.x + 1000, origin.y + 0 - offset)),
+                    ArcPath.getInstance(point[2],
+                            new Point(origin.x + 1000, origin.y + 200),
+                            200 + offset, -90, 0),
+                    LineSegmentPath.getInstance(point[3],
+                            new Point(origin.x + 1200 + offset, origin.y + 200),
+                            new Point(origin.x + 1200 + offset, origin.y + 800)),
+                    ArcPath.getInstance(point[4],
+                            new Point(origin.x + 1000, origin.y + 800),
+                            200 + offset, 0, 90),
+                    LineSegmentPath.getInstance(point[5],
+                            new Point(origin.x + 1000, origin.y + 1000 + offset),
+                            new Point(origin.x + 0, origin.y + 1000 + offset)),
+                    LineSegmentPath.getInstance(Float.MAX_VALUE,
+                            new Point(origin.x + 0, origin.y + 1000 + offset),
+                            new Point(origin.x + 0, origin.y + 1000 + offset))
+            };
+            return generateEasyPathPoint(epp, dist);
         }
 
         // 北行
         if (direction == Direction.INBOUND) {
-            if (dist < point[1]) {
-                x = 200 + (int) ((1000 - offset) * (dist - point[0]) / (point[1] - point[0]));
-                y = 200 + offset;
-            } else if (dist < point[2]) {
-                x = 200 + (1000 - offset);
-                y = 200 + offset + (int) ((1000 - offset - offset) * (dist - point[1]) / (point[2] - point[1]));
-
-            } else {
-                x = 200 + (1000 - offset) - (int) ((1000 - offset) * (dist - point[2]) / (point[3] - point[2]));
-                y = 200 + (1000 - offset);
-            }
-            return new Point(x, y);
+            EasyPathPoint[] epp = {
+                    LineSegmentPath.getInstance(point[1],
+                            new Point(origin.x + 0, origin.y + 0 + offset),
+                            new Point(origin.x + 1000, origin.y + 0 + offset)),
+                    ArcPath.getInstance(point[2],
+                            new Point(origin.x + 1000, origin.y + 200),
+                            200 - offset, -90, 0),
+                    LineSegmentPath.getInstance(point[3],
+                            new Point(origin.x + 1200 - offset, origin.y + 200),
+                            new Point(origin.x + 1200 - offset, origin.y + 800)),
+                    ArcPath.getInstance(point[4],
+                            new Point(origin.x + 1000, origin.y + 800),
+                            200 - offset, 0, 90),
+                    LineSegmentPath.getInstance(point[5],
+                            new Point(origin.x + 1000, origin.y + 1000 - offset),
+                            new Point(origin.x + 0, origin.y + 1000 - offset)),
+                    LineSegmentPath.getInstance(Float.MAX_VALUE,
+                            new Point(origin.x + 0, origin.y + 1000 - offset),
+                            new Point(origin.x + 0, origin.y + 1000 - offset))
+            };
+            return generateEasyPathPoint(epp, dist);
         }
 
         return new Point(0, 0);
