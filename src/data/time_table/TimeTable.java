@@ -43,6 +43,11 @@ public class TimeTable {
             return;
         }
 
+        // 時間あり通過駅は停車扱いとする
+        if (strTime.charAt(strTime.length() - 1) == '?') {
+            strTime = strTime.substring(0, strTime.length() - 1);
+        }
+
         // 時刻データオブジェクトが登録されていない場合は新規に作成する
         if (!mapTimeBuf.containsKey(staID)) {
             mapTimeBuf.put(staID, new TimeData(staID));
@@ -63,6 +68,11 @@ public class TimeTable {
             return;
         }
 
+        // 時間あり通過駅は停車扱いとする
+        if (strTime.charAt(strTime.length() - 1) == '?') {
+            strTime = strTime.substring(0, strTime.length() - 1);
+        }
+        
         // 時刻データオブジェクトが登録されていない場合は新規に作成する
         if (!mapTimeBuf.containsKey(staID)) {
             mapTimeBuf.put(staID, new TimeData(staID));
