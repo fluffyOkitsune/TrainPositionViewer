@@ -2,6 +2,8 @@ package data.line_data;
 
 import java.awt.*;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import data.Time;
@@ -19,6 +21,7 @@ public abstract class LineData {
 
     private StationData[] stationData;
     private Train[] train;
+    private Map<Point, Time> minReqTime;
 
     public enum Direction {
         OUTBOUND, INBOUND;
@@ -47,12 +50,56 @@ public abstract class LineData {
         trainData = TimeTableReader.readTimeTable(this, Direction.INBOUND, getTimeTableInCsvPath());
         generateTrainData(vTrain, trainData);
 
-        setTrain(vTrain.toArray(new Train[0]));
+        Train[] train = vTrain.toArray(new Train[0]);
+        setTrainData(train);
+    }
+
+    private void setTrainData(Train[] train) {
+        setTrain(train);
+
+        minReqTime = new HashMap<>();
+        for (Train t : train) {
+            calcMinRequiedTime(t.trainData.getTimeTable());
+        }
+
+        for (Train t : train) {
+            t.applyMinReqTime(minReqTime);
+        }
     }
 
     private void generateTrainData(Vector<Train> vTrain, TimeTable[] timeTables) {
         for (TimeTable timeTable : timeTables) {
-            vTrain.add(new Train(this, new TrainData(timeTable)));
+            Train train = new Train(this, new TrainData(timeTable));
+            vTrain.add(train);
+        }
+    }
+
+    // --------------------------------------------------------------------------------
+    // 次の駅への最小の所要時間を計算する
+    // --------------------------------------------------------------------------------
+    private void calcMinRequiedTime(TimeTable timeTable) {
+        for (int idx = 0; idx < timeTable.getTimeDataSize() - 1; idx++) {
+            int depStaID = timeTable.getTimeData(idx).getStaID();
+            int destStaID = timeTable.getTimeData(idx + 1).getStaID();
+            Time reqTime = timeTable.getReqTime(idx);
+            setMinReqTime(depStaID, destStaID, reqTime);
+        }
+    }
+
+    private void setMinReqTime(int depStaID, int destStaID, Time reqTime) {
+        if (reqTime == null) {
+            return;
+        }
+
+        Point key = new Point(depStaID, destStaID);
+        if (minReqTime.containsKey(key)) {
+            Time currentMinReqTime = minReqTime.get(key);
+            if (reqTime.compareTo(currentMinReqTime) < 0) {
+                minReqTime.put(key, reqTime);
+            }
+
+        } else {
+            minReqTime.put(key, reqTime);
         }
     }
 
@@ -120,6 +167,14 @@ public abstract class LineData {
 
     public StationData[] getStationData() {
         return stationData;
+    }
+
+    public StationData getStationData(int staID) {
+        return stationData[staID];
+    }
+
+    public float getDistProportion(int staID) {
+        return stationData[staID].getDistProportion();
     }
 
     public String getStationName(int staID) {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.awt.*;
 
 import data.Time;
 import data.line_data.LineData.Direction;
@@ -42,6 +43,11 @@ public class TimeTable {
             return;
         }
 
+        // 時間あり通過駅は停車扱いとする
+        if (strTime.charAt(strTime.length() - 1) == '?') {
+            strTime = strTime.substring(0, strTime.length() - 1);
+        }
+
         // 時刻データオブジェクトが登録されていない場合は新規に作成する
         if (!mapTimeBuf.containsKey(staID)) {
             mapTimeBuf.put(staID, new TimeData(staID));
@@ -62,6 +68,11 @@ public class TimeTable {
             return;
         }
 
+        // 時間あり通過駅は停車扱いとする
+        if (strTime.charAt(strTime.length() - 1) == '?') {
+            strTime = strTime.substring(0, strTime.length() - 1);
+        }
+        
         // 時刻データオブジェクトが登録されていない場合は新規に作成する
         if (!mapTimeBuf.containsKey(staID)) {
             mapTimeBuf.put(staID, new TimeData(staID));
@@ -103,6 +114,65 @@ public class TimeTable {
     }
 
     // --------------------------------------------------------------------------------
+    // 最小所要時間の適用
+    // --------------------------------------------------------------------------------
+    // 最小所要時間を適用する所要時間の閾値
+    private static final Time APPLY_MIN_REQ_TIME_TH = new Time(0, 2, 0);
+
+    public void applyMinReqTime(Map<Point, Time> mapMinReqTime) {
+        for (int i = 0; i < timeData.length - 1; i++) {
+            // 現在駅発時刻と次駅着時刻が指定されている場合は最小所要時間を適用しない。
+            // getArrTimeは着時刻が指定されているかわからない（指定なしの場合発時刻が返る）のでここでは使えない。
+            if (getTimeData(i).getDepartureTime() != null && getTimeData(i + 1).getArrivedTime() != null) {
+                continue;
+            }
+
+            Time reqTime = getReqTime(i);
+            Point key = new Point(timeData[i].getStaID(), timeData[i + 1].getStaID());
+            Time minReqTime = mapMinReqTime.get(key);
+            if (reqTime.sub(minReqTime).compareTo(APPLY_MIN_REQ_TIME_TH) > 0) {
+                // 次駅着時刻がなければ指定する
+                if (timeData[i + 1].getArrivedTime() == null) {
+                    timeData[i + 1].setArrivedTime(timeData[i].getDepTime().add(minReqTime));
+                }
+            }
+        }
+    }
+
+    public Time getReqTime(int idx) {
+        if (this.getDepTime(idx) != null) {
+            if (this.getArrTime(idx + 1) != null) {
+                // Dep -> Arr
+                return this.getDepTime(idx + 1).sub(this.getArrTime(idx));
+
+            } else if (this.getDepTime(idx + 1) != null) {
+                // Dep -> Dep
+                return this.getDepTime(idx + 1).sub(this.getDepTime(idx));
+
+            } else {
+                // 算出不能
+                return null;
+            }
+        } else if (this.getArrTime(idx) != null) {
+            if (this.getArrTime(idx + 1) != null) {
+                // Arr -> Arr
+                return this.getArrTime(idx + 1).sub(this.getArrTime(idx));
+
+            } else if (this.getDepTime(idx + 1) != null) {
+                // Arr -> Dep
+                return this.getArrTime(idx + 1).sub(this.getDepTime(idx));
+
+            } else {
+                // 算出不能
+                return null;
+            }
+        } else {
+            // 算出不能
+            return null;
+        }
+    }
+
+    // --------------------------------------------------------------------------------
     public TimeData getTimeData(int stationID) {
         return timeData[stationID];
     }
@@ -111,12 +181,12 @@ public class TimeTable {
         return timeData.length;
     }
 
-    public Time getDepTime(int stationID) {
-        return timeData[stationID].getDepTime();
+    public Time getDepTime(int idx) {
+        return timeData[idx].getDepTime();
     }
 
-    public Time getArrTime(int stationID) {
-        return timeData[stationID].getArrTime();
+    public Time getArrTime(int idx) {
+        return timeData[idx].getArrTime();
     }
 
     public int getTerminalStaID() {

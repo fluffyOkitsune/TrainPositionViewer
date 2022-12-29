@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 // イミュータブルな時間乗法コンテナ
 public class Time implements Comparable<Time> {
     public static final Time ZERO = new Time(0, 0, 0);
+    public static final Time MAX_VALUE = new Time(23, 59, 59);
+    
     public final int hour, min, sec;
 
     public Time(int hour, int min, int sec) {
