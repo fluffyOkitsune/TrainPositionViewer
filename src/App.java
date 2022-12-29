@@ -27,7 +27,7 @@ public class App implements ChangeListener {
     App() {
         try {
             // 山手線 (2018[平日])
-            if (true) {
+            if (false) {
                 lineData = new LineData[1];
                 lineData[0] = new YamanoteLine();
             }
@@ -38,10 +38,31 @@ public class App implements ChangeListener {
                 lineData[0] = new KeihinTohokuLine();
             }
 
+            // 南武線 (2018[平日])
+            if (false) {
+                lineData = new LineData[1];
+                lineData[0] = new NambuLine();
+            }
+
             // 東海道線（東京 - 熱海） (2018[平日])
             if (false) {
                 lineData = new LineData[1];
                 lineData[0] = new TokaidoLine();
+            }
+
+            // 京王線 (2018[平日])
+            if (true) {
+                lineData = new LineData[4];
+                lineData[0] = new KeioLine();
+                lineData[1] = new KeioNewLine();
+                lineData[2] = new KeioSagamiharaLine();
+                lineData[3] = new KeioTakaoLine();
+            }
+
+            // 奈良線 (2018[平日])
+            if (false) {
+                lineData = new LineData[1];
+                lineData[0] = new NaraLine();
             }
 
             for (LineData ld : lineData) {
