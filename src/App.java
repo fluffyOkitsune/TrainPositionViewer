@@ -52,11 +52,12 @@ public class App implements ChangeListener {
 
             // 京王線 (2018[平日])
             if (true) {
-                lineData = new LineData[4];
+                lineData = new LineData[5];
                 lineData[0] = new KeioLine();
                 lineData[1] = new KeioNewLine();
                 lineData[2] = new KeioSagamiharaLine();
                 lineData[3] = new KeioTakaoLine();
+                lineData[4] = new ToeiShinjukuLune();
             }
 
             // 奈良線 (2018[平日])
