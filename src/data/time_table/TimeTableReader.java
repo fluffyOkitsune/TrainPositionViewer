@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+import data.Time;
 import data.line_data.LineData;
 import data.line_data.LineData.Direction;
 
