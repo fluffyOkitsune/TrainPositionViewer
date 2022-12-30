@@ -10,12 +10,17 @@ import data.line_data.LineData;
 import data.train_data.TrainData;
 
 class NambuLine extends LineData {
-    private Image imageIcon;
+    private Image imageIconLocal;
+    private Image imageIconRapid;
 
     NambuLine() {
         super();
         try {
-            imageIcon = ImageIO.read(new File("icon/e233na.png"));
+            // 233-8000
+            Image image = ImageIO.read(new File("icon/e233na.png"));
+            imageIconLocal = LineData.createEdgedImage(image, COLOR_JN_LOCAL, 2);
+            imageIconRapid = LineData.createEdgedImage(image, COLOR_JN_RAPID, 2);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -55,10 +60,10 @@ class NambuLine extends LineData {
 
         int offset = 0;
         if (direction == Direction.OUTBOUND) {
-            offset = 20;
+            offset = -20;
         }
         if (direction == Direction.INBOUND) {
-            offset -= 20;
+            offset = +20;
         }
 
         int x = startX + (int) Math.floor(2000 * dist);
@@ -69,7 +74,12 @@ class NambuLine extends LineData {
 
     @Override
     public Image getIconImg(TrainData trainData) {
-        return imageIcon;
+        switch (trainData.getTimeTable().trainType) {
+            case "快速":
+                return imageIconRapid;
+            default:
+                return imageIconLocal;
+        }
     }
 
     private static Color COLOR_JN_LOCAL = LINE_COLOR;
