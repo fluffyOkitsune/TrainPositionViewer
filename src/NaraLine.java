@@ -6,24 +6,27 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import data.line_data.ArcPath;
 import data.line_data.EasyPathPoint;
 import data.line_data.LineData;
 import data.line_data.LineSegmentPath;
-import data.time_table.StationData;
 import data.train_data.TrainData;
 
 public class NaraLine extends LineData {
     private Image imageIconLocal;
     private Image imageIconRegRapid;
     private Image imageIconRapid;
+    private Image imageIconMiyakojiRapid;
 
     public NaraLine() {
         super();
         try {
             imageIconLocal = ImageIO.read(new File("icon/w201ka1.png"));
-            imageIconRegRapid = ImageIO.read(new File("icon/w221-2.png"));
-            imageIconRapid = ImageIO.read(new File("icon/w221n1p.png"));
+
+            // 221系
+            Image icon = ImageIO.read(new File("icon/w221n1p.png"));
+            imageIconRegRapid = LineData.createEdgedImage(icon, COLOR_REG_RAPID, 2);
+            imageIconRapid = LineData.createEdgedImage(icon, COLOR_RAPID, 2);
+            imageIconMiyakojiRapid = LineData.createEdgedImage(icon, COLOR_MIYAKOJI_RAPID, 2);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -237,6 +240,7 @@ public class NaraLine extends LineData {
         String trainType = trainData.getTimeTable().trainType;
         switch (trainType) {
             case "みやこ":
+                return imageIconMiyakojiRapid;
             case "快速":
                 return imageIconRapid;
             case "区快":
@@ -246,7 +250,7 @@ public class NaraLine extends LineData {
         }
     }
 
-    private static Color COLOR_LOCAL = Color.WHITE;
+    private static Color COLOR_LOCAL = Color.DARK_GRAY;
     private static Color COLOR_REG_RAPID = new Color(0, 102, 33);
     private static Color COLOR_RAPID = new Color(255, 102, 0);
     private static Color COLOR_MIYAKOJI_RAPID = new Color(165, 42, 42);

@@ -13,14 +13,22 @@ import data.line_data.LineSegmentPath;
 import data.train_data.TrainData;
 
 public class KeihinTohokuLine extends LineData {
-    private Image imageIconJK;
-    private Image imageIconJH;
+    private Image imageIconJKLocal;
+    private Image imageIconJKRapid;
+    private Image imageIconJHLocal;
+    private Image imageIconJHRapid;
 
     public KeihinTohokuLine() {
         super();
         try {
-            imageIconJK = ImageIO.read(new File("icon/e233kt.png"));
-            imageIconJH = ImageIO.read(new File("icon/e233yo.png"));
+            Image imageIconJK = ImageIO.read(new File("icon/e233kt.png"));
+            imageIconJKLocal = LineData.createEdgedImage(imageIconJK, COLOR_JK_LOCAL, 2);
+            imageIconJKRapid = LineData.createEdgedImage(imageIconJK, COLOR_JK_RAPID, 2);
+
+            Image imageIconJH = ImageIO.read(new File("icon/e233yo.png"));
+            imageIconJHLocal = LineData.createEdgedImage(imageIconJH, COLOR_JH_LOCAL, 2);
+            imageIconJHRapid = LineData.createEdgedImage(imageIconJH, COLOR_JH_RAPID, 2);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -116,12 +124,23 @@ public class KeihinTohokuLine extends LineData {
     @Override
     public Image getIconImg(TrainData trainData) {
         String trainID = trainData.getTimeTable().trainID;
+        String trainType = trainData.getTimeTable().trainType;
 
         if (trainID.charAt(trainID.length() - 1) == 'K') {
             // 列車番号の末尾がKの電車は横浜線直通
-            return imageIconJH;
+            switch (trainType) {
+                case "快速":
+                    return imageIconJHRapid;
+                default:
+                    return imageIconJHLocal;
+            }
         } else {
-            return imageIconJK;
+            switch (trainType) {
+                case "快速":
+                    return imageIconJKRapid;
+                default:
+                    return imageIconJKLocal;
+            }
         }
     }
 

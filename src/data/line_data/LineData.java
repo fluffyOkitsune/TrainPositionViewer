@@ -1,6 +1,8 @@
 package data.line_data;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
@@ -156,6 +158,27 @@ public abstract class LineData {
     public static void drawString(Graphics g, String str, Point pos) {
         Rectangle rectText = g.getFontMetrics().getStringBounds(str, g).getBounds();
         g.drawString(str, pos.x - rectText.width / 2, pos.y + rectText.height / 2);
+    }
+
+    // 種別職で囲ったアイコン
+    public static Image createEdgedImage(Image img, Color color, int edgeSize) {
+        BufferedImage bimg = new BufferedImage(img.getWidth(null) + 2 * edgeSize, img.getHeight(null) + 2 * edgeSize,
+                BufferedImage.TYPE_INT_ARGB);
+
+        Graphics g = bimg.getGraphics();
+        g.drawImage(img, 0, 0, img.getWidth(null) + 2 * edgeSize, img.getHeight(null) + 2 * edgeSize, null);
+
+        for (int x = 0; x < bimg.getTileWidth(); x++) {
+            for (int y = 0; y < bimg.getTileHeight(); y++) {
+                if (bimg.getRGB(x, y) != 0) {
+                    bimg.setRGB(x, y, color.getRGB());
+                }
+            }
+        }
+
+        g.drawImage(img, edgeSize, edgeSize, null);
+        g.dispose();
+        return bimg;
     }
 
     // --------------------------------------------------------------------------------

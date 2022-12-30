@@ -72,7 +72,7 @@ public class TimeTable {
         if (strTime.charAt(strTime.length() - 1) == '?') {
             strTime = strTime.substring(0, strTime.length() - 1);
         }
-        
+
         // 時刻データオブジェクトが登録されていない場合は新規に作成する
         if (!mapTimeBuf.containsKey(staID)) {
             mapTimeBuf.put(staID, new TimeData(staID));
@@ -120,7 +120,7 @@ public class TimeTable {
     private static final Time APPLY_MIN_REQ_TIME_TH = new Time(0, 2, 0);
 
     public void applyMinReqTime(Map<Point, Time> mapMinReqTime) {
-        for (int i = 0; i < timeData.length - 1; i++) {
+        for (int i = 0; i < getTimeDataSize() - 1; i++) {
             // 現在駅発時刻と次駅着時刻が指定されている場合は最小所要時間を適用しない。
             // getArrTimeは着時刻が指定されているかわからない（指定なしの場合発時刻が返る）のでここでは使えない。
             if (getTimeData(i).getDepartureTime() != null && getTimeData(i + 1).getArrivedTime() != null) {
@@ -178,7 +178,12 @@ public class TimeTable {
     }
 
     public int getTimeDataSize() {
-        return timeData.length;
+        // 線内に２つ以上の停車駅がない場合（始発の次の停車駅がこの線の外の駅の場合など）はnullになる。
+        if (timeData == null) {
+            return 0;
+        } else {
+            return timeData.length;
+        }
     }
 
     public Time getDepTime(int idx) {

@@ -32,6 +32,14 @@ public class App implements ChangeListener {
                 lineData[0] = new YamanoteLine();
             }
 
+            // 中央線 (2018[平日])
+            if (false) {
+                lineData = new LineData[3];
+                lineData[0] = new ChuoLineRapid();
+                lineData[1] = new OumeLine();
+                lineData[2] = new ChuoSobuLine();
+            }
+
             // 京浜東北線 (2018[平日])
             if (false) {
                 lineData = new LineData[1];
@@ -51,7 +59,7 @@ public class App implements ChangeListener {
             }
 
             // 京王線 (2018[平日])
-            if (true) {
+            if (false) {
                 lineData = new LineData[5];
                 lineData[0] = new KeioLine();
                 lineData[1] = new KeioNewLine();
@@ -61,7 +69,7 @@ public class App implements ChangeListener {
             }
 
             // 奈良線 (2018[平日])
-            if (false) {
+            if (true) {
                 lineData = new LineData[1];
                 lineData[0] = new NaraLine();
             }
@@ -421,7 +429,6 @@ class Canvas extends JPanel implements MouseInputListener {
             g.setColor(Color.WHITE);
             g.fillOval(pos.x - radiusIn / 2, pos.y - radiusIn / 2, radiusIn, radiusIn);
 
-            
             // 駅名を描画する
             String staName = sd.getName();
 
@@ -460,7 +467,7 @@ class Canvas extends JPanel implements MouseInputListener {
         posX += 20;
         posY += 20;
 
-        g.setColor(Color.BLACK);
+        g.setColor(Color.LIGHT_GRAY);
         g.fillRect(posX, posY, 150, 60);
 
         g.setColor(train.getTypeColor());

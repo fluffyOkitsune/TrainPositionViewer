@@ -50,6 +50,12 @@ public class Train {
 
     // 現在時刻で、この列車はどこを走行しているかを計算する
     public void updateLocation(Time currentTime) {
+        // データがない場合は計算不能のため無視する
+        if (this.trainData.getTimeTable().getTimeDataSize() == 0) {
+            onDuty = false;
+            return;
+        }
+
         if (waintingForDeparture(currentTime)) {
             return;
         }
@@ -155,7 +161,7 @@ public class Train {
     // --------------------------------------------------------------------------------
     // 最小所要時間の適用
     // --------------------------------------------------------------------------------
-    public void applyMinReqTime(Map<Point, Time>minReqTime){
+    public void applyMinReqTime(Map<Point, Time> minReqTime) {
         TimeTable timeTable = trainData.getTimeTable();
         timeTable.applyMinReqTime(minReqTime);
     }
