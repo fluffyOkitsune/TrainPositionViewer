@@ -126,8 +126,10 @@ class MainWindow extends JFrame implements ActionListener {
     private JSpinner spnTime;
     private TimeSpinnerModel spnTimeModel;
 
-    // 現在時刻を描画する用
+    // 現在時刻を描画するチェックボックス
     private JCheckBox cbAutoSetCurrTime;
+    // 列車番号を表示するチェックボックス
+    private JCheckBox cbDispID;
 
     public MainWindow(App app, String title, int width, int height) {
         super(title);
@@ -176,6 +178,11 @@ class MainWindow extends JFrame implements ActionListener {
         cbAutoSetCurrTime.setActionCommand("AUTO");
         cbAutoSetCurrTime.addActionListener(this);
 
+        // 列車番号を表示するチェックボックス
+        panel.add(cbDispID = new JCheckBox("列車番号を表示"));
+        cbDispID.setActionCommand("DISP_ID");
+        cbDispID.addActionListener(this);
+
         // 現在時刻設定用スピナー
         spnTime = new JSpinner(spnTimeModel = new TimeSpinnerModel());
         spnTime.addChangeListener(app);
@@ -200,33 +207,41 @@ class MainWindow extends JFrame implements ActionListener {
                 spnTimeModel.setAddUnit(TimeSpinnerModel.AddUnit.SEC);
                 break;
             case "AUTO":
-                if (cbAutoSetCurrTime.isSelected()) {
-                    if (threadAutoGetCurrTime == null) {
-                        threadAutoGetCurrTime = new Thread() {
-                            @Override
-                            public void run() {
-                                while (true) {
-                                    try {
-                                        LocalDateTime nowDate = LocalDateTime.now();
-                                        spnTime.setValue(
-                                                new Time(nowDate.getHour(), nowDate.getMinute(), nowDate.getSecond()));
-                                        sleep(500);
-                                    } catch (InterruptedException e) {
-                                        break;
-                                    }
-                                }
-                            }
-                        };
-                        threadAutoGetCurrTime.start();
-                    }
-                } else {
-                    if (threadAutoGetCurrTime != null) {
-                        // 現在時刻セット処理スレッドを停止
-                        threadAutoGetCurrTime.interrupt();
-                        threadAutoGetCurrTime = null;
-                    }
-                }
+                switchAutoMode();
                 break;
+            case "DISP_ID":
+                cvs.enableDispID = cbDispID.isSelected();
+                update();
+                break;
+        }
+    }
+
+    private void switchAutoMode() {
+        if (cbAutoSetCurrTime.isSelected()) {
+            if (threadAutoGetCurrTime == null) {
+                threadAutoGetCurrTime = new Thread() {
+                    @Override
+                    public void run() {
+                        while (true) {
+                            try {
+                                LocalDateTime nowDate = LocalDateTime.now();
+                                spnTime.setValue(
+                                        new Time(nowDate.getHour(), nowDate.getMinute(), nowDate.getSecond()));
+                                sleep(500);
+                            } catch (InterruptedException e) {
+                                break;
+                            }
+                        }
+                    }
+                };
+                threadAutoGetCurrTime.start();
+            }
+        } else {
+            if (threadAutoGetCurrTime != null) {
+                // 現在時刻セット処理スレッドを停止
+                threadAutoGetCurrTime.interrupt();
+                threadAutoGetCurrTime = null;
+            }
         }
     }
 
@@ -358,6 +373,7 @@ class Canvas extends JPanel implements MouseInputListener {
     static final Dimension SIZE = new Dimension(4000, 3000);
 
     private App app;
+    public boolean enableDispID;
 
     Canvas(App app) {
         this.app = app;
@@ -387,6 +403,12 @@ class Canvas extends JPanel implements MouseInputListener {
 
         for (LineData ld : app.lineData) {
             drawStation(g, ld);
+        }
+
+        if (enableDispID) {
+            for (LineData ld : app.lineData) {
+                ld.drawTrainID(g);
+            }
         }
 
         drawTrainInfo(g, selectedTrain);
