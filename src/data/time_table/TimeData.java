@@ -1,7 +1,6 @@
 package data.time_table;
 
 import data.Time;
-import data.line_data.LineData;
 import data.line_data.LineData.Direction;
 
 // 時刻表の時刻
@@ -21,8 +20,8 @@ public class TimeData {
     TimeData(int staID) {
         this.staID = staID;
         this.type = TYPE_BLANK;
-        this.arrivedTime = null;
-        this.departureTime = null;
+        setArrivedTime(null);
+        setDepartureTime(null);
     }
 
     // --------------------------------------------------------------------------------
@@ -44,7 +43,7 @@ public class TimeData {
 
                 default: // 時刻
                     this.type = TYPE_STOP;
-                    this.arrivedTime = Time.parseTime(strArrived);
+                    setArrivedTime(Time.parseTime(strArrived));
                     break;
             }
         }
@@ -66,12 +65,12 @@ public class TimeData {
 
                 default: // 時刻
                     this.type = TYPE_STOP;
-                    this.departureTime = Time.parseTime(strDeparture);
+                    setDepartureTime(Time.parseTime(strDeparture));
                     break;
             }
         } else if (this.type == TYPE_STOP) {
             // すでに着時刻が指定されている場合
-            this.departureTime = Time.parseTime(strDeparture);
+            setDepartureTime(Time.parseTime(strDeparture));
         }
     }
 
@@ -114,4 +113,23 @@ public class TimeData {
         }
         return departureTime;
     }
+
+    // --------------------------------------------------------------------------------
+    // Package Private
+    Time getArrivedTime() {
+        return arrivedTime;
+    }
+
+    void setArrivedTime(Time arrivedTime) {
+        this.arrivedTime = arrivedTime;
+    }
+
+    Time getDepartureTime() {
+        return departureTime;
+    }
+
+    void setDepartureTime(Time departureTime) {
+        this.departureTime = departureTime;
+    }
+
 }

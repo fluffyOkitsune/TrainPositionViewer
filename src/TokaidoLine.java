@@ -13,6 +13,7 @@ public class TokaidoLine extends LineData {
     private Image imageIconJT;
     private Image imageIconJS;
     private Image imageIconLtd;
+    private Image imageIconSleepingLtd;
 
     public TokaidoLine() {
         super();
@@ -20,6 +21,7 @@ public class TokaidoLine extends LineData {
             imageIconJT = ImageIO.read(new File("icon/e233sh.png"));
             imageIconJS = ImageIO.read(new File("icon/e231tdk.png"));
             imageIconLtd = ImageIO.read(new File("icon/e185odj.png"));
+            imageIconSleepingLtd = ImageIO.read(new File("icon/w285.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -38,11 +40,23 @@ public class TokaidoLine extends LineData {
     }
 
     @Override
-    public Point calcPositionOnLinePath(float dist) {
-        int x = (int) (1000 - 800 * dist);
-        int y = (int) (100 + 900 * dist);
+    public Point calcPositionOnLinePath(float dist, Direction direction) {
+        int offset = 10;
+        // 下り
+        if (direction == Direction.OUTBOUND) {
+            int x = 900 + offset - (int) (800 * dist);
+            int y = 100 + offset + (int) (800 * dist);
+            return new Point(x, y);
+        }
 
-        return new Point(x, y);
+        // 上り
+        if (direction == Direction.INBOUND) {
+            int x = 900 - offset - (int) (800 * dist);
+            int y = 100 - offset + (int) (800 * dist);
+            return new Point(x, y);
+        }
+
+        return new Point(0, 0);
     }
 
     @Override
@@ -62,6 +76,10 @@ public class TokaidoLine extends LineData {
 
     @Override
     public Image getIconImg(TrainData trainData) {
+        // 寝台特急
+        if (trainData.getTimeTable().trainType.equals("★彡")) {
+            return imageIconSleepingLtd;
+        }
         if (trainData.getTimeTable().trainType.equals("特急")) {
             return imageIconLtd;
         }
@@ -77,15 +95,20 @@ public class TokaidoLine extends LineData {
 
     private static Color COLOR_LOCAL = new Color(24, 166, 41);
     private static Color COLOR_RAPID = new Color(246, 139, 30);
+    private static Color COLOR_COMMUTER_RAPID = new Color(96, 24, 134);
     private static Color COLOR_SPECIAL_RAPID = new Color(51, 204, 255);
 
     @Override
     public Color getTypeColor(TrainData trainData) {
         switch (trainData.getTimeTable().trainType) {
+            case "★彡": // 寝台特急
+                return Color.RED;
             case "特急":
                 return Color.RED;
             case "特快":
                 return COLOR_SPECIAL_RAPID;
+            case "通快":
+                return COLOR_COMMUTER_RAPID;
             case "快速":
                 return COLOR_RAPID;
             default:

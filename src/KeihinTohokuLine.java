@@ -6,18 +6,29 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import data.line_data.ArcPath;
+import data.line_data.EasyPathPoint;
 import data.line_data.LineData;
+import data.line_data.LineSegmentPath;
 import data.train_data.TrainData;
 
 public class KeihinTohokuLine extends LineData {
-    private Image imageIconJK;
-    private Image imageIconJH;
+    private Image imageIconJKLocal;
+    private Image imageIconJKRapid;
+    private Image imageIconJHLocal;
+    private Image imageIconJHRapid;
 
     public KeihinTohokuLine() {
         super();
         try {
-            imageIconJK = ImageIO.read(new File("icon/e233kt.png"));
-            imageIconJH = ImageIO.read(new File("icon/e233yo.png"));
+            Image imageIconJK = ImageIO.read(new File("icon/e233kt.png"));
+            imageIconJKLocal = LineData.createEdgedImage(imageIconJK, COLOR_JK_LOCAL, 2);
+            imageIconJKRapid = LineData.createEdgedImage(imageIconJK, COLOR_JK_RAPID, 2);
+
+            Image imageIconJH = ImageIO.read(new File("icon/e233yo.png"));
+            imageIconJHLocal = LineData.createEdgedImage(imageIconJH, COLOR_JH_LOCAL, 2);
+            imageIconJHRapid = LineData.createEdgedImage(imageIconJH, COLOR_JH_RAPID, 2);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -35,22 +46,64 @@ public class KeihinTohokuLine extends LineData {
         return "京浜東北線・根岸線";
     }
 
-    @Override
-    public Point calcPositionOnLinePath(float dist) {
-        int x, y;
-        if (dist < 0.3) {
-            x = 200 + (int) (1000 * dist / 0.3);
-            y = 200;
-        } else if (dist < 0.7) {
-            x = 200 + 1000;
-            y = 200 + (int) (1000 * (dist - 0.3) / (0.7 - 0.3));
+    private Point origin = new Point(200, 200);
 
-        } else {
-            x = 200 + 1000 - (int) (1000 * (dist - 0.7) / (1.0 - 0.7));
-            y = 200 + 1000;
+    @Override
+    public Point calcPositionOnLinePath(float dist, Direction direction) {
+        float[] point = { 0.0f, 0.3f, 0.4f, 0.6f, 0.7f, 1.0f };
+        int offset = 30;
+
+        // 南行
+        if (direction == Direction.OUTBOUND) {
+            EasyPathPoint[] epp = {
+                    LineSegmentPath.getInstance(point[1],
+                            new Point(origin.x + 0, origin.y + 0 - offset),
+                            new Point(origin.x + 1000, origin.y + 0 - offset)),
+                    ArcPath.getInstance(point[2],
+                            new Point(origin.x + 1000, origin.y + 200),
+                            200 + offset, -90, 0),
+                    LineSegmentPath.getInstance(point[3],
+                            new Point(origin.x + 1200 + offset, origin.y + 200),
+                            new Point(origin.x + 1200 + offset, origin.y + 800)),
+                    ArcPath.getInstance(point[4],
+                            new Point(origin.x + 1000, origin.y + 800),
+                            200 + offset, 0, 90),
+                    LineSegmentPath.getInstance(point[5],
+                            new Point(origin.x + 1000, origin.y + 1000 + offset),
+                            new Point(origin.x + 0, origin.y + 1000 + offset)),
+                    LineSegmentPath.getInstance(Float.MAX_VALUE,
+                            new Point(origin.x + 0, origin.y + 1000 + offset),
+                            new Point(origin.x + 0, origin.y + 1000 + offset))
+            };
+            return generateEasyPathPoint(epp, dist);
         }
 
-        return new Point(x, y);
+        // 北行
+        if (direction == Direction.INBOUND) {
+            EasyPathPoint[] epp = {
+                    LineSegmentPath.getInstance(point[1],
+                            new Point(origin.x + 0, origin.y + 0 + offset),
+                            new Point(origin.x + 1000, origin.y + 0 + offset)),
+                    ArcPath.getInstance(point[2],
+                            new Point(origin.x + 1000, origin.y + 200),
+                            200 - offset, -90, 0),
+                    LineSegmentPath.getInstance(point[3],
+                            new Point(origin.x + 1200 - offset, origin.y + 200),
+                            new Point(origin.x + 1200 - offset, origin.y + 800)),
+                    ArcPath.getInstance(point[4],
+                            new Point(origin.x + 1000, origin.y + 800),
+                            200 - offset, 0, 90),
+                    LineSegmentPath.getInstance(point[5],
+                            new Point(origin.x + 1000, origin.y + 1000 - offset),
+                            new Point(origin.x + 0, origin.y + 1000 - offset)),
+                    LineSegmentPath.getInstance(Float.MAX_VALUE,
+                            new Point(origin.x + 0, origin.y + 1000 - offset),
+                            new Point(origin.x + 0, origin.y + 1000 - offset))
+            };
+            return generateEasyPathPoint(epp, dist);
+        }
+
+        return new Point(0, 0);
     }
 
     @Override
@@ -71,27 +124,51 @@ public class KeihinTohokuLine extends LineData {
     @Override
     public Image getIconImg(TrainData trainData) {
         String trainID = trainData.getTimeTable().trainID;
+        String trainType = trainData.getTimeTable().trainType;
 
         if (trainID.charAt(trainID.length() - 1) == 'K') {
             // 列車番号の末尾がKの電車は横浜線直通
-            return imageIconJH;
+            switch (trainType) {
+                case "快速":
+                    return imageIconJHRapid;
+                default:
+                    return imageIconJHLocal;
+            }
         } else {
-            return imageIconJK;
+            switch (trainType) {
+                case "快速":
+                    return imageIconJKRapid;
+                default:
+                    return imageIconJKLocal;
+            }
         }
     }
 
-    private static Color COLOR_LOCAL = new Color(0, 178, 229);
-    private static Color COLOR_RAPID = new Color(255, 0, 128);
+    private static Color COLOR_JK_LOCAL = new Color(0, 178, 229);
+    private static Color COLOR_JK_RAPID = new Color(255, 0, 128);
+    private static Color COLOR_JH_LOCAL = new Color(127, 195, 66);
+    private static Color COLOR_JH_RAPID = new Color(255, 69, 0);
 
     @Override
     public Color getTypeColor(TrainData trainData) {
-        String trainType = trainData.getTimeTable().trainID;
+        String trainID = trainData.getTimeTable().trainID;
+        String trainType = trainData.getTimeTable().trainType;
 
-        switch (trainType) {
-            case "快速":
-                return COLOR_RAPID;
-            default:
-                return COLOR_LOCAL;
+        if (trainID.charAt(trainID.length() - 1) == 'K') {
+            // 列車番号の末尾がKの電車は横浜線直通
+            switch (trainType) {
+                case "快速":
+                    return COLOR_JH_RAPID;
+                default:
+                    return COLOR_JH_LOCAL;
+            }
+        } else {
+            switch (trainType) {
+                case "快速":
+                    return COLOR_JK_RAPID;
+                default:
+                    return COLOR_JK_LOCAL;
+            }
         }
     }
 }
