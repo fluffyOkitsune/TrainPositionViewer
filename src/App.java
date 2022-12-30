@@ -27,9 +27,17 @@ public class App implements ChangeListener {
     App() {
         try {
             // 山手線 (2018[平日])
-            if (true) {
+            if (false) {
                 lineData = new LineData[1];
                 lineData[0] = new YamanoteLine();
+            }
+
+            // 中央線 (2018[平日])
+            if (false) {
+                lineData = new LineData[3];
+                lineData[0] = new ChuoLineRapid();
+                lineData[1] = new OumeLine();
+                lineData[2] = new ChuoSobuLine();
             }
 
             // 京浜東北線 (2018[平日])
@@ -38,10 +46,32 @@ public class App implements ChangeListener {
                 lineData[0] = new KeihinTohokuLine();
             }
 
+            // 南武線 (2018[平日])
+            if (false) {
+                lineData = new LineData[1];
+                lineData[0] = new NambuLine();
+            }
+
             // 東海道線（東京 - 熱海） (2018[平日])
             if (false) {
                 lineData = new LineData[1];
                 lineData[0] = new TokaidoLine();
+            }
+
+            // 京王線 (2018[平日])
+            if (false) {
+                lineData = new LineData[5];
+                lineData[0] = new KeioLine();
+                lineData[1] = new KeioNewLine();
+                lineData[2] = new KeioSagamiharaLine();
+                lineData[3] = new KeioTakaoLine();
+                lineData[4] = new ToeiShinjukuLune();
+            }
+
+            // 奈良線 (2018[平日])
+            if (true) {
+                lineData = new LineData[1];
+                lineData[0] = new NaraLine();
             }
 
             for (LineData ld : lineData) {
@@ -399,7 +429,6 @@ class Canvas extends JPanel implements MouseInputListener {
             g.setColor(Color.WHITE);
             g.fillOval(pos.x - radiusIn / 2, pos.y - radiusIn / 2, radiusIn, radiusIn);
 
-            
             // 駅名を描画する
             String staName = sd.getName();
 
@@ -438,7 +467,7 @@ class Canvas extends JPanel implements MouseInputListener {
         posX += 20;
         posY += 20;
 
-        g.setColor(Color.BLACK);
+        g.setColor(Color.LIGHT_GRAY);
         g.fillRect(posX, posY, 150, 60);
 
         g.setColor(train.getTypeColor());

@@ -2,12 +2,14 @@ package draw;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Map;
 
 import data.Time;
 import data.line_data.LineData;
 import data.line_data.LineData.Direction;
 import data.time_table.StationData;
 import data.time_table.TimeData;
+import data.time_table.TimeTable;
 import data.train_data.TrainData;
 
 public class Train {
@@ -48,6 +50,12 @@ public class Train {
 
     // 現在時刻で、この列車はどこを走行しているかを計算する
     public void updateLocation(Time currentTime) {
+        // データがない場合は計算不能のため無視する
+        if (this.trainData.getTimeTable().getTimeDataSize() == 0) {
+            onDuty = false;
+            return;
+        }
+
         if (waintingForDeparture(currentTime)) {
             return;
         }
@@ -148,6 +156,14 @@ public class Train {
         } else {
             return false;
         }
+    }
+
+    // --------------------------------------------------------------------------------
+    // 最小所要時間の適用
+    // --------------------------------------------------------------------------------
+    public void applyMinReqTime(Map<Point, Time> minReqTime) {
+        TimeTable timeTable = trainData.getTimeTable();
+        timeTable.applyMinReqTime(minReqTime);
     }
 
     // --------------------------------------------------------------------------------
