@@ -2,7 +2,6 @@ package data.line_data;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
@@ -140,16 +139,6 @@ public abstract class LineData {
     // --------------------------------------------------------------------------------
     // 描画処理
     // --------------------------------------------------------------------------------
-    public abstract Image getIconImg(TrainData trainData);
-
-    public abstract Color getTypeColor(TrainData trainData);
-
-    public void drawTrain(Graphics g) {
-        for (Train t : train) {
-            t.draw(g);
-        }
-    }
-
     public static void drawImage(Graphics g, Image img, Point pos) {
         g.drawImage(img, pos.x - img.getWidth(null) / 2,
                 pos.y - img.getHeight(null) / 2, null);
@@ -160,7 +149,7 @@ public abstract class LineData {
         g.drawString(str, pos.x - rectText.width / 2, pos.y + rectText.height / 2);
     }
 
-    // 種別職で囲ったアイコン
+    // 種別色で囲ったアイコン
     public static Image createEdgedImage(Image img, Color color, int edgeSize) {
         BufferedImage bimg = new BufferedImage(img.getWidth(null) + 2 * edgeSize, img.getHeight(null) + 2 * edgeSize,
                 BufferedImage.TYPE_INT_ARGB);
@@ -179,6 +168,36 @@ public abstract class LineData {
         g.drawImage(img, edgeSize, edgeSize, null);
         g.dispose();
         return bimg;
+    }
+
+    public abstract Image getIconImg(TrainData trainData);
+
+    public abstract Color getTypeColor(TrainData trainData);
+
+    public void drawTrain(Graphics g) {
+        for (Train t : train) {
+            t.draw(g);
+        }
+    }
+
+    public void drawTrainID(Graphics g) {
+        for (Train t : train) {
+            if (t.onDuty) {
+                String trainID = t.trainData.getTimeTable().trainID;
+                Rectangle rect = t.getRect();
+                Point pos = new Point(rect.getLocation().x + rect.width / 2, rect.getLocation().y + rect.height / 2);
+
+                // TODO: 縁取り(暫定)
+                g.setColor(Color.WHITE);
+                for (int i = 0; i < 9; i++) {
+                    Point offsetPos = new Point(pos.x + i / 3 - 1, pos.y + i % 3 - 1);
+                    LineData.drawString(g, trainID, offsetPos);
+                }
+
+                g.setColor(t.getTypeColor());
+                LineData.drawString(g, trainID, pos);
+            }
+        }
     }
 
     // --------------------------------------------------------------------------------
