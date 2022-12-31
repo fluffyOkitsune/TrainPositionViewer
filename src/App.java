@@ -68,10 +68,22 @@ public class App implements ChangeListener {
                 lineData[4] = new ToeiShinjukuLune();
             }
 
+            // 久留里線 (2018[平日])
+            if (false) {
+                lineData = new LineData[1];
+                lineData[0] = new KururiLine();
+            }
+
             // 奈良線 (2018[平日])
-            if (true) {
+            if (false) {
                 lineData = new LineData[1];
                 lineData[0] = new NaraLine();
+            }
+
+            // 宗谷本線 (2018[平日])
+            if (true) {
+                lineData = new LineData[1];
+                lineData[0] = new SoyaLine();
             }
 
             for (LineData ld : lineData) {
