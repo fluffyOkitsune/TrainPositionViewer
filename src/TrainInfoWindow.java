@@ -89,17 +89,23 @@ public class TrainInfoWindow {
         }
     }
 
+    private Point mouseDragStartingOffset = new Point(0, 0);
+
     public boolean dragWindow(MouseEvent e) {
         if (!hasDragStarted) {
             return false;
         } else {
-            this.rect.x = e.getX();
-            this.rect.y = e.getY();
+            this.rect.x = e.getX() + mouseDragStartingOffset.x;
+            this.rect.y = e.getY() + mouseDragStartingOffset.y;
             return true;
         }
     }
 
     public void dragStarted(MouseEvent e) {
+        final int offsetX = rect.x - e.getX();
+        final int offsetY = rect.y - e.getY();
+        mouseDragStartingOffset.setLocation(offsetX, offsetY);
+
         hasDragStarted = getOnMouse(e);
     }
 
