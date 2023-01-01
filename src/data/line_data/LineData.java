@@ -70,7 +70,7 @@ public abstract class LineData {
 
     private void generateTrainData(Vector<Train> vTrain, TimeTable[] timeTables) {
         for (TimeTable timeTable : timeTables) {
-            Train train = new Train(this, new TrainData(timeTable));
+            Train train = new Train(this, new TrainData(timeTable, this));
             vTrain.add(train);
         }
     }
@@ -134,6 +134,13 @@ public abstract class LineData {
         }
 
         return new Point(0, 0);
+    }
+
+    // --------------------------------------------------------------------------------
+    // 備考欄の列車の詳細情報
+    // --------------------------------------------------------------------------------
+    public String getExtraKeyWord() {
+        return "◆《運転日注意》";
     }
 
     // --------------------------------------------------------------------------------
@@ -234,4 +241,5 @@ public abstract class LineData {
     public Train[] getTrain() {
         return train;
     }
+
 }

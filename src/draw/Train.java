@@ -261,9 +261,23 @@ public class Train {
         }
     }
 
+    private final AlphaComposite ALHA_COMP_NONE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
+    private final AlphaComposite ALHA_COMP_HARF = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
+
     public void draw(Graphics g) {
         if (onDuty) {
+            Graphics2D g2 = (Graphics2D) g;
+
+            final boolean isExtra = trainData.isExtra();
+            if (isExtra) {
+                g2.setComposite(ALHA_COMP_HARF);
+            } else {
+                g2.setComposite(ALHA_COMP_NONE);
+            }
             g.drawImage(image, rect.getLocation().x, rect.getLocation().y, null);
+
+            // 描画が終わったら元の設定に戻す
+            g2.setComposite(ALHA_COMP_NONE);
         }
     }
 

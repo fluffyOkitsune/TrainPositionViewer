@@ -26,6 +26,12 @@ public class App implements ChangeListener {
 
     App() {
         try {
+            // 東海道新幹線
+            if (true) {
+                lineData = new LineData[1];
+                lineData[0] = new TokaidoShinkansen();
+            }
+
             // 山手線 (2018[平日])
             if (false) {
                 lineData = new LineData[1];
@@ -81,7 +87,7 @@ public class App implements ChangeListener {
             }
 
             // 宗谷本線 (2018[平日])
-            if (true) {
+            if (false) {
                 lineData = new LineData[1];
                 lineData[0] = new SoyaLine();
             }
@@ -89,6 +95,7 @@ public class App implements ChangeListener {
             for (LineData ld : lineData) {
                 ld.importCSV();
             }
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

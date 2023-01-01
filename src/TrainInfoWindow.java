@@ -11,7 +11,7 @@ public class TrainInfoWindow {
 
     public TrainInfoWindow() {
         selectedTrain = null;
-        rect = new Rectangle(0, 0, 150, 50);
+        rect = new Rectangle(0, 0, 150, 70);
     }
 
     public void drawTrainInfo(Graphics g) {
@@ -40,8 +40,12 @@ public class TrainInfoWindow {
         String trainType = selectedTrain.trainData.getTimeTable().trainType;
 
         g.drawString(trainID + " " + trainType, rect.x + 10, rect.y + 20);
-        g.drawString(generateTrainNameStr(selectedTrain), rect.x + 10, rect.y + 30);
-        g.drawString(selectedTrain.getTerminalName() + "行", rect.x + 10, rect.y + 40);
+        g.drawString(generateTrainNameStr(selectedTrain), rect.x + 10, rect.y + 32);
+        g.drawString(selectedTrain.getTerminalName() + "行", rect.x + 10, rect.y + 44);
+
+        if (selectedTrain.trainData.isExtra()) {
+            g.drawString("◆《運転日注意》", rect.x + 10, rect.y + 56);
+        }
     }
 
     private String generateTrainNameStr(Train train) {

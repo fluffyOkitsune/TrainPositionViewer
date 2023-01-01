@@ -23,6 +23,9 @@ public class TimeTable {
     // 駅の着発時刻バッファ
     private Map<Integer, TimeData> mapTimeBuf;
 
+    // 備考欄
+    public String note = "";
+
     public TimeTable(Direction direction) {
         this.direction = direction;
         mapTimeBuf = new HashMap<>();
