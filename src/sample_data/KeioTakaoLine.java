@@ -1,3 +1,5 @@
+package sample_data;
+
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Point;
@@ -11,13 +13,13 @@ import data.line_data.LineData;
 import data.line_data.LineSegmentPath;
 import data.train_data.TrainData;
 
-class KeioNewLine extends LineData {
+public class KeioTakaoLine extends LineData {
     private Image imageIconCommuter;
     private Image imageIconExpress;
     private Image imageIconLiner;
     private Image imageIconSubway;
 
-    KeioNewLine() {
+    public KeioTakaoLine() {
         super();
         try {
             imageIconLiner = ImageIO.read(new File("icon/keio5003.png"));
@@ -38,22 +40,22 @@ class KeioNewLine extends LineData {
 
     @Override
     public String getLineName() {
-        return "京王新線";
+        return "京王高尾線";
     }
 
     @Override
     protected String getStationDataCsvPath() {
-        return "time_table/keio_new_line_station.csv";
+        return "time_table/keio_takao_line_station.csv";
     }
 
     @Override
     protected String getTimeTableOutCsvPath() {
-        return "time_table/keio_new_line_weekdays_out.csv";
+        return "time_table/keio_takao_line_weekdays_out.csv";
     }
 
     @Override
     protected String getTimeTableInCsvPath() {
-        return "time_table/keio_new_line_weekdays_in.csv";
+        return "time_table/keio_takao_line_weekdays_in.csv";
     }
 
     private Point origin = new Point(200, 200);
@@ -69,13 +71,14 @@ class KeioNewLine extends LineData {
         }
 
         EasyPathPoint[] epp = {
+                // 北野 - 高尾山口
                 LineSegmentPath.getInstance(1.0f,
-                        new Point(origin.x + 2000, 100 + origin.y + offset),
-                        new Point(origin.x + 1900, origin.y + offset)),
+                        new Point(origin.x + 200, origin.y + offset),
+                        new Point(origin.x + 0, 200 + origin.y + offset)),
                 // 終わり
                 LineSegmentPath.getInstance(Float.MAX_VALUE,
-                        new Point(origin.x + 1900, origin.y + offset),
-                        new Point(origin.x + 1900, origin.y + offset))
+                        new Point(origin.x, origin.y + 200 + offset),
+                        new Point(origin.x, origin.y + 200 + offset))
         };
         return generateEasyPathPoint(epp, dist);
     }

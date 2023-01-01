@@ -1,3 +1,5 @@
+package sample_data;
+
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Point;
@@ -9,11 +11,11 @@ import javax.imageio.ImageIO;
 import data.line_data.LineData;
 import data.train_data.TrainData;
 
-class NambuLine extends LineData {
+public class NambuLine extends LineData {
     private Image imageIconLocal;
     private Image imageIconRapid;
 
-    NambuLine() {
+    public NambuLine() {
         super();
         try {
             // 233-8000

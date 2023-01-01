@@ -1,3 +1,5 @@
+package sample_data;
+
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -10,10 +12,10 @@ import data.line_data.LineSegmentPath;
 import data.line_data.SingleTrackLinePath;
 import data.train_data.TrainData;
 
-class KururiLine extends LineData {
+public class KururiLine extends LineData {
     private Image imageIcon;
 
-    KururiLine() {
+    public KururiLine() {
         super();
         try {
             imageIcon = ImageIO.read(new File("icon/e130kr.png"));
