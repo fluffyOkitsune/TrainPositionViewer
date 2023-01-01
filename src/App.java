@@ -439,9 +439,11 @@ class Canvas extends JPanel implements MouseInputListener {
         trainInfoWindow.drawTrainInfo(g);
     }
 
+    private final Stroke strokeDrawLine = new BasicStroke(5.0f);
+
     private void drawRailLine(Graphics g, LineData lineData) {
         g.setColor(lineData.getLineColor());
-        ((Graphics2D) g).setStroke(new BasicStroke(5.0f));
+        ((Graphics2D) g).setStroke(strokeDrawLine);
 
         // 路線を書く
         int NUM_SEPARATE = 1000;
