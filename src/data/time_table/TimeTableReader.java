@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-import data.Time;
 import data.line_data.LineData;
 import data.line_data.LineData.Direction;
 
@@ -15,7 +14,8 @@ public class TimeTableReader {
     private static final int NUM_HEADER_LINE = 4;
     private static final int NUM_EMPTY_LINE = 1;
 
-    public static TimeTable[] readTimeTable(LineData lineData, Direction direction, String timeTableCSVPath) throws FileNotFoundException {
+    public static TimeTable[] readTimeTable(LineData lineData, Direction direction, String timeTableCSVPath)
+            throws FileNotFoundException {
         TimeTableReader timeTableReader = new TimeTableReader(timeTableCSVPath);
 
         timeTableReader.skipLines(NUM_HEADER_LINE);
@@ -26,7 +26,7 @@ public class TimeTableReader {
         timeTableReader.readTrainNo(lineData);
 
         timeTableReader.skipLines(NUM_EMPTY_LINE);
-        
+
         timeTableReader.readTrainTime(lineData, direction);
 
         timeTableReader.close();
@@ -144,11 +144,11 @@ public class TimeTableReader {
             String line = csvScanner.nextLine();
             String[] items = line.split(",", -1);
             String staName = items[0];
-            
+
             switch (items[1]) {
                 case "着":
                     // 駅IDをインクリメント
-                    if(!prevStaName.isEmpty()){
+                    if (!prevStaName.isEmpty()) {
                         staID++;
                     }
                     // 着時刻を格納する
@@ -159,7 +159,7 @@ public class TimeTableReader {
 
                 case "発":
                     // 前の駅と違う場合は駅IDをインクリメント
-                    if(!prevStaName.isEmpty() && !staName.equals(prevStaName)){
+                    if (!prevStaName.isEmpty() && !staName.equals(prevStaName)) {
                         staID++;
                     }
                     // "発時刻を格納する
@@ -168,12 +168,16 @@ public class TimeTableReader {
                     }
                     break;
 
-                default:
+                default: // 着でも初でもない場合は備考欄
+                    // "発時刻を格納する
+                    for (int idx = 0; idx < timeTables.length; idx++) {
+                        timeTables[idx].note = items[idx + 2];
+                    }
                     break;
             }
             prevStaName = staName;
         }
-        
+
         for (TimeTable tt : timeTables) {
             tt.packData(lineData.numStation(), direction);
         }

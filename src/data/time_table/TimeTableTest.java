@@ -104,7 +104,7 @@ public class TimeTableTest {
         lineData.setStationData(testStationDatas);
 
         TimeTable timeTable = createTestData();
-        Train[] train = { new Train(lineData, new TrainData(timeTable)) };
+        Train[] train = { new Train(lineData, new TrainData(timeTable, lineData)) };
         lineData.setTrain(train);
 
         // 着発が同一駅ID : 駅に停車中

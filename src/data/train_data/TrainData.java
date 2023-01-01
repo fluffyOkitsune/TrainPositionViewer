@@ -1,16 +1,33 @@
 package data.train_data;
 
+import data.line_data.LineData;
 import data.time_table.TimeTable;
 
 // ロード後に変化することのない列車運行データを格納する
 public class TrainData {
+    // 時刻表データ（読んだそのままで加工しない）
+    // #TODO: このデータはTrainを生成した後は不要になるので、クリア処理を設ける
     private TimeTable timeTable;
 
-    public TrainData(TimeTable timeTable) {
+    // 臨時列車
+    private boolean isExtra;
+
+    public TrainData(TimeTable timeTable, LineData lineData) {
         this.timeTable = timeTable;
+        isExtra = containsExtraKeyWord(lineData, timeTable.note);
     }
 
-    public TimeTable getTimeTable(){
+    private boolean containsExtraKeyWord(LineData lineData, String note) {
+        String extrakeyWord = lineData.getExtraKeyWord();
+        return note.contains(extrakeyWord);
+    }
+
+    public TimeTable getTimeTable() {
         return timeTable;
     }
+    
+    public boolean isExtra() {
+        return isExtra;
+    }
+
 }

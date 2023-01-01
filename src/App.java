@@ -26,6 +26,12 @@ public class App implements ChangeListener {
 
     App() {
         try {
+            // 東海道新幹線
+            if (true) {
+                lineData = new LineData[1];
+                lineData[0] = new TokaidoShinkansen();
+            }
+
             // 山手線 (2018[平日])
             if (false) {
                 lineData = new LineData[1];
@@ -81,7 +87,7 @@ public class App implements ChangeListener {
             }
 
             // 宗谷本線 (2018[平日])
-            if (true) {
+            if (false) {
                 lineData = new LineData[1];
                 lineData[0] = new SoyaLine();
             }
@@ -89,6 +95,7 @@ public class App implements ChangeListener {
             for (LineData ld : lineData) {
                 ld.importCSV();
             }
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -387,10 +394,16 @@ class Canvas extends JPanel implements MouseInputListener {
     private App app;
     public boolean enableDispID;
 
+    // 列車情報表示ウィンドウ
+    private TrainInfoWindow trainInfoWindow;
+
     Canvas(App app) {
         this.app = app;
         setPreferredSize(Canvas.SIZE);
         addMouseListener(this);
+        addMouseMotionListener(this);
+
+        trainInfoWindow = new TrainInfoWindow();
     }
 
     // --------------------------------------------------------------------------------
@@ -423,12 +436,14 @@ class Canvas extends JPanel implements MouseInputListener {
             }
         }
 
-        drawTrainInfo(g, selectedTrain);
+        trainInfoWindow.drawTrainInfo(g);
     }
+
+    private final Stroke strokeDrawLine = new BasicStroke(5.0f);
 
     private void drawRailLine(Graphics g, LineData lineData) {
         g.setColor(lineData.getLineColor());
-        ((Graphics2D) g).setStroke(new BasicStroke(5.0f));
+        ((Graphics2D) g).setStroke(strokeDrawLine);
 
         // 路線を書く
         int NUM_SEPARATE = 1000;
@@ -478,63 +493,10 @@ class Canvas extends JPanel implements MouseInputListener {
         }
     }
 
-    // --------------------------------------------------------------------------------
-    // 列車の情報ウィンドウ
-    // --------------------------------------------------------------------------------
-    private Train selectedTrain = null;
-
-    private void drawTrainInfo(Graphics g, Train train) {
-        if (train == null) {
-            return;
-        }
-        if (!train.onDuty) {
-            return;
-        }
-
-        Rectangle rect = train.getRect();
-        int posX = train.getRect().getLocation().x;
-        int posY = train.getRect().getLocation().y;
-
-        g.setColor(Color.RED);
-        g.drawRect(rect.getLocation().x, rect.getLocation().y, rect.width, rect.height);
-
-        posX += 20;
-        posY += 20;
-
-        g.setColor(Color.LIGHT_GRAY);
-        g.fillRect(posX, posY, 150, 60);
-
-        g.setColor(train.getTypeColor());
-        g.drawRect(posX, posY, 150, 60);
-
-        // 列車番号 種別
-        g.drawString(train.trainData.getTimeTable().trainID + " " + train.trainData.getTimeTable().trainType, posX + 10,
-                posY + 20);
-        g.drawString(generateTrainNameStr(train), posX + 10, posY + 30);
-        g.drawString(train.getTerminalName() + "行", posX + 10, posY + 40);
-    }
-
-    private String generateTrainNameStr(Train train) {
-        String str = "";
-        String trainName = train.trainData.getTimeTable().trainName;
-        if (trainName.isEmpty()) {
-            return str;
-        }
-        str += "\n" + trainName;
-
-        // 号
-        String trainNo = train.trainData.getTimeTable().trainNo;
-        if (trainNo.isEmpty()) {
-            return str;
-        }
-        str += " " + trainNo + "号";
-
-        return str;
-    }
-
     @Override
     public void mouseClicked(MouseEvent e) {
-        selectedTrain = null;
+        // クリックした列車アイコンに対応する列車データを探索し、セットする
+        Train selectedTrain = null;
         for (LineData ld : app.lineData) {
             for (Train t : ld.getTrain()) {
                 if (t.getOnMouse(e)) {
@@ -542,15 +504,19 @@ class Canvas extends JPanel implements MouseInputListener {
                 }
             }
         }
+        trainInfoWindow.setTrain(selectedTrain);
+
         repaint();
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
+        trainInfoWindow.dragStarted(e);
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        trainInfoWindow.dragFinished(e);
     }
 
     @Override
@@ -563,6 +529,9 @@ class Canvas extends JPanel implements MouseInputListener {
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        if (trainInfoWindow.dragWindow(e)) {
+            repaint();
+        }
     }
 
     @Override
