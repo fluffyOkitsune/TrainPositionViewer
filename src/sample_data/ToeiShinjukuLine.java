@@ -1,3 +1,5 @@
+package sample_data;
+
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Point;
@@ -11,11 +13,11 @@ import data.line_data.LineData;
 import data.line_data.LineSegmentPath;
 import data.train_data.TrainData;
 
-class ToeiShinjukuLune extends LineData {
+public class ToeiShinjukuLine extends LineData {
     private Image imageIconCommuter;
     private Image imageIconSubway;
 
-    ToeiShinjukuLune() {
+    public ToeiShinjukuLine() {
         super();
         try {
             imageIconCommuter = ImageIO.read(new File("icon/keio7001n.png"));

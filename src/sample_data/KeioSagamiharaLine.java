@@ -1,3 +1,5 @@
+package sample_data;
+
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Point;
@@ -11,13 +13,13 @@ import data.line_data.LineData;
 import data.line_data.LineSegmentPath;
 import data.train_data.TrainData;
 
-class KeioSagamiharaLine extends LineData {
+public class KeioSagamiharaLine extends LineData {
     private Image imageIconCommuter;
     private Image imageIconExpress;
     private Image imageIconLiner;
     private Image imageIconSubway;
 
-    KeioSagamiharaLine() {
+    public KeioSagamiharaLine() {
         super();
         try {
             imageIconLiner = ImageIO.read(new File("icon/keio5003.png"));

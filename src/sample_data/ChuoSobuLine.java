@@ -1,3 +1,5 @@
+package sample_data;
+
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Point;
@@ -12,7 +14,7 @@ import data.line_data.LineData;
 import data.line_data.LineSegmentPath;
 import data.train_data.TrainData;
 
-class ChuoSobuLine extends LineData {
+public class ChuoSobuLine extends LineData {
     private Image imageIconSobuLocal;
     private Image imageIconTozaiLocal;
     private Image imageIconChuoLocal;
@@ -20,7 +22,7 @@ class ChuoSobuLine extends LineData {
 
     private static final Color COLOR_LOCAL = new Color(255, 212, 0);
 
-    ChuoSobuLine() {
+    public ChuoSobuLine() {
         super();
         try {
             Image img;

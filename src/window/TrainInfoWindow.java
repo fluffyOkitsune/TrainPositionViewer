@@ -1,3 +1,5 @@
+package window;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -17,6 +19,11 @@ public class TrainInfoWindow {
     private final Stroke strokeDrawTrainIndicationFrame = new BasicStroke(5.0f);
     private final Stroke strokeDrawWindowFrame = new BasicStroke(2.0f);
 
+    private int cntAnimOpen;
+    private final int cntAnimOpenTh = 5;
+
+    private String[] contents;
+
     public void drawTrainInfo(Graphics g) {
         if (selectedTrain == null) {
             return;
@@ -27,37 +34,41 @@ public class TrainInfoWindow {
 
         drawTrainIndicationFrame(g);
 
-        // 列車番号 種別
-        String trainID = selectedTrain.trainData.getTimeTable().trainID;
-        String trainType = selectedTrain.trainData.getTimeTable().trainType;
-
-        String trainMainInfo = String.format("%s [%s]", trainID, trainType);
-        String trainName = generateTrainNameStr(selectedTrain);
-        String destination = selectedTrain.getTerminalName() + "行";
-        String note = "";
-        if (selectedTrain.trainData.isExtra()) {
-            note = "◆《運転日注意》";
-        }
-
-        String str[] = { trainMainInfo, trainName, destination, note };
-
         // 最大サイズの文字に合わせる
-        Rectangle maxStrSizeRext = calcWindowSizeRect(g, str);
+        Rectangle maxStrSizeRext = calcWindowSizeRect(g, contents);
         rect.width = maxStrSizeRext.width;
-        rect.height = maxStrSizeRext.height * str.length;
+        rect.height = maxStrSizeRext.height * contents.length;
 
-        // 下地（若干広く描画する）
-        ((Graphics2D) g).setStroke(strokeDrawWindowFrame);
-        g.setColor(genComplementaryColor(selectedTrain.getTypeColor()));
-        g.fillRect(rect.x - 1, rect.y - 1, rect.width + 2, rect.height + 2);
+        if (cntAnimOpen < cntAnimOpenTh) {
+            cntAnimOpen++;
+            float h, y;
 
-        // 枠（若干広く描画する）
-        g.setColor(selectedTrain.getTypeColor());
-        g.drawRect(rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 4);
+            // 下地（若干広く描画する）
+            ((Graphics2D) g).setStroke(strokeDrawWindowFrame);
+            g.setColor(genComplementaryColor(selectedTrain.getTypeColor()));
+            h = (rect.height + 2) * cntAnimOpen / cntAnimOpenTh;
+            y = (rect.height + 2) * (cntAnimOpenTh - cntAnimOpen) / cntAnimOpenTh;
+            g.fillRect(rect.x - 1, (int) (rect.y - 1 + y / 2), rect.width + 2, (int) h);
 
-        // 文字を描画する
-        drawStringsTowardVerticalAxsis(g, str, rect.getLocation());
+            // 枠（若干広く描画する）
+            g.setColor(selectedTrain.getTypeColor());
+            h = (rect.height + 4) * cntAnimOpen / cntAnimOpenTh;
+            y = (rect.height + 4) * (cntAnimOpenTh - cntAnimOpen) / cntAnimOpenTh;
+            g.drawRect(rect.x - 2, (int) (rect.y - 2 + y / 2), rect.width + 4, (int) h);
 
+        } else {
+            // 下地（若干広く描画する）
+            ((Graphics2D) g).setStroke(strokeDrawWindowFrame);
+            g.setColor(genComplementaryColor(selectedTrain.getTypeColor()));
+            g.fillRect(rect.x - 1, rect.y - 1, rect.width + 2, rect.height + 2);
+
+            // 枠（若干広く描画する）
+            g.setColor(selectedTrain.getTypeColor());
+            g.drawRect(rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 4);
+
+            // 文字を描画する
+            drawStringsTowardVerticalAxsis(g, contents, rect.getLocation());
+        }
     }
 
     // 補色を計算する
@@ -132,13 +143,32 @@ public class TrainInfoWindow {
 
     public void setTrain(Train train) {
         this.selectedTrain = train;
+        this.cntAnimOpen = 0;
         if (train == null) {
             this.rect.x = 0;
             this.rect.y = 0;
         } else {
             // ウィンドウを移動できるようにするため、値渡しする
-            this.rect.x = train.getRect().x;
-            this.rect.y = train.getRect().y;
+            this.rect.x = train.getRect().x - train.getRect().width / 2;
+            this.rect.y = train.getRect().y - train.getRect().height / 2;
+
+            // 表示する情報
+            String trainID = selectedTrain.trainData.getTimeTable().trainID;
+            String trainType = selectedTrain.trainData.getTimeTable().trainType;
+
+            String trainMainInfo = String.format("%s [%s]", trainID, trainType);
+            String trainName = generateTrainNameStr(selectedTrain);
+            String destination = selectedTrain.getTerminalName() + "行";
+            String note = "";
+            if (selectedTrain.trainData.isExtra()) {
+                note = "◆《運転日注意》";
+            }
+
+            contents = new String[4];
+            contents[0] = trainMainInfo;
+            contents[1] = trainName;
+            contents[2] = destination;
+            contents[3] = note;
         }
     }
 

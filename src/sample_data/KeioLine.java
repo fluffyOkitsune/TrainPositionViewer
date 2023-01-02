@@ -1,3 +1,5 @@
+package sample_data;
+
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Point;
@@ -11,13 +13,13 @@ import data.line_data.LineData;
 import data.line_data.LineSegmentPath;
 import data.train_data.TrainData;
 
-class KeioTakaoLine extends LineData {
+public class KeioLine extends LineData {
     private Image imageIconCommuter;
     private Image imageIconExpress;
     private Image imageIconLiner;
     private Image imageIconSubway;
 
-    KeioTakaoLine() {
+    public KeioLine() {
         super();
         try {
             imageIconLiner = ImageIO.read(new File("icon/keio5003.png"));
@@ -38,22 +40,22 @@ class KeioTakaoLine extends LineData {
 
     @Override
     public String getLineName() {
-        return "京王高尾線";
+        return "京王線";
     }
 
     @Override
     protected String getStationDataCsvPath() {
-        return "time_table/keio_takao_line_station.csv";
+        return "time_table/keio_line_station.csv";
     }
 
     @Override
     protected String getTimeTableOutCsvPath() {
-        return "time_table/keio_takao_line_weekdays_out.csv";
+        return "time_table/keio_line_weekdays_out.csv";
     }
 
     @Override
     protected String getTimeTableInCsvPath() {
-        return "time_table/keio_takao_line_weekdays_in.csv";
+        return "time_table/keio_line_weekdays_in.csv";
     }
 
     private Point origin = new Point(200, 200);
@@ -69,14 +71,26 @@ class KeioTakaoLine extends LineData {
         }
 
         EasyPathPoint[] epp = {
-                // 北野 - 高尾山口
-                LineSegmentPath.getInstance(1.0f,
+                // 新宿 - 笹塚
+                LineSegmentPath.getInstance(getDistProportion(1),
+                        new Point(origin.x + 2000, origin.y + offset),
+                        new Point(origin.x + 1900, origin.y + offset)),
+                // 笹塚 - 調布
+                LineSegmentPath.getInstance(getDistProportion(15),
+                        new Point(origin.x + 1900, origin.y + offset),
+                        new Point(origin.x + 1000, origin.y + offset)),
+                // 調布 - 京王八王子
+                LineSegmentPath.getInstance(getDistProportion(30),
+                        new Point(origin.x + 1000, origin.y + offset),
+                        new Point(origin.x + 200, origin.y + offset)),
+                // 調布 - 京王八王子
+                LineSegmentPath.getInstance(getDistProportion(31),
                         new Point(origin.x + 200, origin.y + offset),
-                        new Point(origin.x + 0, 200 + origin.y + offset)),
+                        new Point(origin.x + 0, origin.y + offset)),
                 // 終わり
                 LineSegmentPath.getInstance(Float.MAX_VALUE,
-                        new Point(origin.x, origin.y + 200 + offset),
-                        new Point(origin.x, origin.y + 200 + offset))
+                        new Point(origin.x + 0, origin.y + offset),
+                        new Point(origin.x + 0, origin.y + offset))
         };
         return generateEasyPathPoint(epp, dist);
     }

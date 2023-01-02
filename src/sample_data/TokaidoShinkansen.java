@@ -1,3 +1,5 @@
+package sample_data;
+
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Point;

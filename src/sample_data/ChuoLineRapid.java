@@ -1,21 +1,21 @@
+package sample_data;
+
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import data.Time;
+import data.line_data.ArcPath;
 import data.line_data.EasyPathPoint;
 import data.line_data.LineData;
 import data.line_data.LineSegmentPath;
 import data.train_data.TrainData;
 
-class OumeLine extends LineData {
-    private Image imageIconOume;
+public class ChuoLineRapid extends LineData {
+    private Image imageIconSobuLocal;
     private Image imageIconChuoLocal;
     private Image imageIconChuoRapid;
     private Image imageIconChuoComRapid;
@@ -30,12 +30,12 @@ class OumeLine extends LineData {
     private static final Color COLOR_SP_RAPID = new Color(0, 0, 160);
     private static final Color COLOR_COM_SP_RAIPD = new Color(255, 128, 192);
 
-    OumeLine() {
+    public ChuoLineRapid() {
         super();
         try {
             Image img;
-            // 青梅線（縁取りなし）
-            imageIconOume = ImageIO.read(new File("icon/e233or.png"));
+            // 総武線（縁取りなし）
+            imageIconSobuLocal = ImageIO.read(new File("icon/e231so3.png"));
 
             // 中央線
             img = ImageIO.read(new File("icon/e233kor.png"));
@@ -48,6 +48,8 @@ class OumeLine extends LineData {
             // ライナー
             imageIconLiner = ImageIO.read(new File("icon/e257-2.png"));
 
+            // 特急（縁取りなし）
+            imageIconLTD = ImageIO.read(new File("icon/e353.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -62,25 +64,25 @@ class OumeLine extends LineData {
 
     @Override
     public String getLineName() {
-        return "青梅線";
+        return "中央線快速";
     }
-
-    private Point origin = new Point(100, 100);
 
     @Override
     protected String getStationDataCsvPath() {
-        return "time_table/oume_line_station.csv";
+        return "time_table/chuo_line_rapid_station.csv";
     }
 
     @Override
     protected String getTimeTableOutCsvPath() {
-        return "time_table/oume_line_weekdays_out.csv";
+        return "time_table/chuo_line_rapid_weekdays_out.csv";
     }
 
     @Override
     protected String getTimeTableInCsvPath() {
-        return "time_table/oume_line_weekdays_in.csv";
+        return "time_table/chuo_line_rapid_weekdays_in.csv";
     }
+
+    private Point origin = new Point(100, 100);
 
     @Override
     public Point calcPositionOnLinePath(float dist, Direction direction) {
@@ -94,50 +96,57 @@ class OumeLine extends LineData {
         }
 
         EasyPathPoint[] epp = {
-                // 立川 - 拝島
-                LineSegmentPath.getInstance(getDistProportion(5),
+                // 東京 - 神田
+                LineSegmentPath.getInstance(getDistProportion(1),
+                        new Point(origin.x + 3000 - offset, origin.y + 1100),
+                        new Point(origin.x + 3000 - offset, origin.y + 1050)),
+                // 神田 - お茶の水
+                ArcPath.getInstance(getDistProportion(2),
+                        new Point(origin.x + 2950, origin.y + 1050),
+                        50 - offset, 0, -90),
+                // お茶の水 - 新宿
+                LineSegmentPath.getInstance(getDistProportion(4),
+                        new Point(origin.x + 2950, origin.y + 1000 + offset),
+                        new Point(origin.x + 2500, origin.y + 1000 + offset)),
+                // 新宿 - 三鷹
+                LineSegmentPath.getInstance(getDistProportion(11),
+                        new Point(origin.x + 2500, origin.y + 1000 + offset),
+                        new Point(origin.x + 2000, origin.y + 1000 + offset)),
+                // 三鷹 - 立川
+                LineSegmentPath.getInstance(getDistProportion(18),
+                        new Point(origin.x + 2000, origin.y + 1000 + offset),
+                        new Point(origin.x + 1500, origin.y + 1000 + offset)),
+                // 立川 - 八王子
+                LineSegmentPath.getInstance(getDistProportion(21),
                         new Point(origin.x + 1500, origin.y + 1000 + offset),
-                        new Point(origin.x + 1300, origin.y + 800 + offset)),
-                // 拝島 - 青梅
-                LineSegmentPath.getInstance(getDistProportion(12),
-                        new Point(origin.x + 1300, origin.y + 800 + offset),
-                        new Point(origin.x + 1000, origin.y + 800 + offset)),
-                // 青梅 - 奥多摩
-                LineSegmentPath.getInstance(1.0f,
-                        new Point(origin.x + 1000, origin.y + 800 + offset),
-                        new Point(origin.x + 300, origin.y + 100 + offset)),
+                        new Point(origin.x + 1300, origin.y + 1200 + offset)),
+                // 八王子 - 高尾
+                LineSegmentPath.getInstance(getDistProportion(23),
+                        new Point(origin.x + 1300, origin.y + 1200 + offset),
+                        new Point(origin.x + 1100, origin.y + 1200 + offset)),
                 // 終わり
                 LineSegmentPath.getInstance(Float.MAX_VALUE,
-                        new Point(origin.x + 300, origin.y + 100 + offset),
-                        new Point(origin.x + 300, origin.y + 100 + offset))
+                        new Point(origin.x + 1100, origin.y + 1200 + offset),
+                        new Point(origin.x + 1100, origin.y + 1200 + offset))
         };
         return generateEasyPathPoint(epp, dist);
     }
 
     @Override
     public Image getIconImg(TrainData trainData) {
-        String trainType = trainData.getTimeTable().trainType;
-        switch (trainType) {
-            case "ﾗｲﾅｰ":
-                return imageIconLiner;
-            case "特急":
-                return imageIconLTD;
-            default:
-                break;
-        }
-
         String trainID = trainData.getTimeTable().trainID;
         char alphabet = trainID.charAt(trainID.length() - 1);
         switch (alphabet) {
-            case 'T':
-            case 'H':
+            case 'B':
+            case 'C':
+                // 総武線の電車
+                return imageIconSobuLocal;
+            default:
                 // 中央線の電車
                 break;
-            default:
-                return imageIconOume;
         }
 
-        // 中央線の電車
+        String trainType = trainData.getTimeTable().trainType;
         switch (trainType) {
             case "快速":
                 return imageIconChuoRapid;
@@ -147,6 +156,10 @@ class OumeLine extends LineData {
                 return imageIconChuoSpRapid;
             case "通特":
                 return imageIconChuoComSpRapid;
+            case "ﾗｲﾅｰ":
+                return imageIconLiner;
+            case "特急":
+                return imageIconLTD;
             default:
                 return imageIconChuoLocal;
         }

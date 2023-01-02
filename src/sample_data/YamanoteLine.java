@@ -1,3 +1,5 @@
+package sample_data;
+
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Point;
@@ -11,10 +13,10 @@ import data.line_data.EasyPathPoint;
 import data.line_data.LineData;
 import data.train_data.TrainData;
 
-class YamanoteLine extends LineData {
+public class YamanoteLine extends LineData {
     private Image imageIcon;
 
-    YamanoteLine() {
+    public YamanoteLine() {
         super();
         try {
             imageIcon = ImageIO.read(new File("icon/e235ya.png"));
