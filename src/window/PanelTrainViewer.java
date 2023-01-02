@@ -63,7 +63,7 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         g.dispose();
     }
 
-    public void drawOffscreen() {
+    synchronized public void drawOffscreen() {
         Graphics g = offscreenImg.getGraphics();
         g.setColor(BG_COLOR);
         g.fillRect(0, 0, offscreenImg.getWidth(null), offscreenImg.getHeight(null));
@@ -101,7 +101,7 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
     }
 
     // アニメーションのあるウィンドウを描画する（50[ms] で描画）
-    public void drawLayerAnimWindow() {
+    synchronized public void drawLayerAnimWindow() {
         clearImg(layerAnimWindow);
         Graphics g = layerAnimWindow.getGraphics();
 

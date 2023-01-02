@@ -1,4 +1,5 @@
 package window;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -93,6 +94,7 @@ public class MainWindow extends JFrame implements ActionListener {
     }
 
     private Thread threadAnimation;
+    private static final long ANIM_CYCLIC_TIME_MS = 50;
 
     public void startAnim() {
         threadAnimation = new Thread() {
@@ -100,8 +102,15 @@ public class MainWindow extends JFrame implements ActionListener {
             public void run() {
                 while (true) {
                     try {
+                        long time = System.currentTimeMillis();
                         panelTrainViewer.drawLayerAnimWindow();
-                        sleep(25);
+                        panelTrainViewer.repaint();
+                        long erapsedTime = time - System.currentTimeMillis();
+
+                        long sleepTime = ANIM_CYCLIC_TIME_MS - erapsedTime;
+                        if (sleepTime > 0) {
+                            sleep(sleepTime);
+                        }
                     } catch (InterruptedException e) {
                         break;
                     }
@@ -166,7 +175,6 @@ public class MainWindow extends JFrame implements ActionListener {
 
     public void update() {
         panelTrainViewer.drawLayerTrainViewer();
-        panelTrainViewer.drawLayerAnimWindow();
         panelTrainViewer.repaint();
     }
 
