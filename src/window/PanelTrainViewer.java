@@ -15,7 +15,17 @@ import draw.Train;
 public class PanelTrainViewer extends JPanel implements MouseInputListener {
     static final Dimension WINDOW_CANVAS_SIZE = new Dimension(4000, 3000);
 
-    Image offscreenImg, layerTrainViewer, layerAnimWindow;
+    // オフスクリーンイメージ
+    Image offscreenImg;
+    Graphics2D offscreenG;
+
+    // 列車ビューワのレイヤ
+    Image layerTrainViewerImg;
+    Graphics2D layerTrainViewerG;
+
+    // ウィンドウのアニメーションのレイヤ
+    Image layerAnimWindowImg;
+    Graphics2D layerAnimWindowG;
 
     private App app;
     public boolean enableDispID;
@@ -36,10 +46,15 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
     public void initialize() {
         offscreenImg = new BufferedImage(WINDOW_CANVAS_SIZE.width, WINDOW_CANVAS_SIZE.height,
                 BufferedImage.TYPE_4BYTE_ABGR);
-        layerTrainViewer = new BufferedImage(WINDOW_CANVAS_SIZE.width, WINDOW_CANVAS_SIZE.height,
+        offscreenG = (Graphics2D) offscreenImg.getGraphics();
+
+        layerTrainViewerImg = new BufferedImage(WINDOW_CANVAS_SIZE.width, WINDOW_CANVAS_SIZE.height,
                 BufferedImage.TYPE_4BYTE_ABGR);
-        layerAnimWindow = new BufferedImage(WINDOW_CANVAS_SIZE.width, WINDOW_CANVAS_SIZE.height,
+        layerTrainViewerG = (Graphics2D) layerTrainViewerImg.getGraphics();
+
+        layerAnimWindowImg = new BufferedImage(WINDOW_CANVAS_SIZE.width, WINDOW_CANVAS_SIZE.height,
                 BufferedImage.TYPE_4BYTE_ABGR);
+        layerAnimWindowG = (Graphics2D) layerAnimWindowImg.getGraphics();
 
         trainInfoWindow = new TrainInfoWindow();
     }
@@ -56,58 +71,52 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         g.drawImage(offscreenImg, 0, 0, null);
     }
 
-    private void clearImg(Image image) {
-        Graphics2D g = (Graphics2D) image.getGraphics();
+    private void clearImg(Image image, Graphics2D g) {
+        Composite temp = g.getComposite();
+
         g.setComposite(AlphaComposite.Clear);
         g.fillRect(0, 0, image.getWidth(null), image.getHeight(null));
-        g.dispose();
+
+        g.setComposite(temp);
     }
 
     synchronized public void drawOffscreen() {
-        Graphics g = offscreenImg.getGraphics();
-        g.setColor(BG_COLOR);
-        g.fillRect(0, 0, offscreenImg.getWidth(null), offscreenImg.getHeight(null));
+        offscreenG.setColor(BG_COLOR);
+        offscreenG.fillRect(0, 0, offscreenImg.getWidth(null), offscreenImg.getHeight(null));
 
-        g.drawImage(layerTrainViewer, 0, 0, null);
-        g.drawImage(layerAnimWindow, 0, 0, null);
-
-        g.dispose();
+        offscreenG.drawImage(layerTrainViewerImg, 0, 0, null);
+        offscreenG.drawImage(layerAnimWindowImg, 0, 0, null);
     }
 
     // 列車ビューワを描画する（update時に描画する）
-    public void drawLayerTrainViewer() {
-        clearImg(layerTrainViewer);
-        Graphics g = layerTrainViewer.getGraphics();
+    synchronized public void drawLayerTrainViewer() {
+        clearImg(layerTrainViewerImg, layerTrainViewerG);
 
         for (LineData ld : app.lineData) {
-            drawRailLine(g, ld);
+            drawRailLine(layerTrainViewerG, ld);
         }
 
         for (LineData ld : app.lineData) {
-            ld.drawTrain(g);
+            ld.drawTrain(layerTrainViewerG);
         }
 
         for (LineData ld : app.lineData) {
-            drawStation(g, ld);
+            drawStation(layerTrainViewerG, ld);
         }
 
         if (enableDispID) {
             for (LineData ld : app.lineData) {
-                ld.drawTrainID(g);
+                ld.drawTrainID(layerTrainViewerG);
             }
         }
-
-        g.dispose();
     }
 
     // アニメーションのあるウィンドウを描画する（50[ms] で描画）
     synchronized public void drawLayerAnimWindow() {
-        clearImg(layerAnimWindow);
-        Graphics g = layerAnimWindow.getGraphics();
+        clearImg(layerAnimWindowImg, layerAnimWindowG);
 
-        trainInfoWindow.drawTrainInfo(g);
+        trainInfoWindow.drawTrainInfo(layerAnimWindowG);
 
-        g.dispose();
     }
 
     private final Stroke strokeDrawLine = new BasicStroke(5.0f);
@@ -175,7 +184,7 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
                 }
             }
         }
-        trainInfoWindow.setTrain(selectedTrain);
+        trainInfoWindow.selectTrain(selectedTrain, layerAnimWindowG);
 
         repaint();
     }
