@@ -40,6 +40,7 @@ public abstract class LineData {
     public final void importCSV() throws FileNotFoundException {
         // 駅データの入力
         setStationData(StationData.createStationData(getStationDataCsvPath()));
+        genLinePath();
 
         // 列車運行データの入力
         TimeTable[] trainData;
@@ -134,6 +135,35 @@ public abstract class LineData {
         }
 
         return new Point(0, 0);
+    }
+
+    private short[][] linePath;
+    private final static int NUM_SEPARATE = 1000;
+
+    private void genLinePath() {
+        linePath = new short[4][NUM_SEPARATE + 1];
+        Point pos;
+        for (int i = 0; i < NUM_SEPARATE + 1; i++) {
+            // 下り線
+            pos = calcPositionOnLinePath((float) i / NUM_SEPARATE, Direction.OUTBOUND);
+            linePath[0][i] = (short) pos.x;
+            linePath[1][i] = (short) pos.y;
+
+            // 上り線
+            pos = calcPositionOnLinePath((float) i / NUM_SEPARATE, Direction.INBOUND);
+            linePath[2][i] = (short) pos.x;
+            linePath[3][i] = (short) pos.y;
+        }
+    }
+
+    public void drawLinePath(Graphics g) {
+        for (int i = 0; i < NUM_SEPARATE; i++) {
+            // 下り線
+            g.drawLine(linePath[0][i], linePath[1][i], linePath[0][i + 1], linePath[1][i + 1]);
+
+            // 上り線
+            g.drawLine(linePath[2][i], linePath[3][i], linePath[2][i + 1], linePath[3][i + 1]);
+        }
     }
 
     // --------------------------------------------------------------------------------
@@ -241,5 +271,4 @@ public abstract class LineData {
     public Train[] getTrain() {
         return train;
     }
-
 }
