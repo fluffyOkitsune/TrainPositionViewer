@@ -111,8 +111,8 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         final int radiusOut = 20;
         final int radiusIn = 15;
         for (StationData sd : lineData.getStationData()) {
-            Point posO = lineData.calcPositionOnLinePath(sd.getDistProportion(), Direction.OUTBOUND);
-            Point posI = lineData.calcPositionOnLinePath(sd.getDistProportion(), Direction.INBOUND);
+            Point posO = lineData.calcPosOnLinePath(sd.getDistProportion(), Direction.OUTBOUND);
+            Point posI = lineData.calcPosOnLinePath(sd.getDistProportion(), Direction.INBOUND);
             Point pos = new Point((posO.x + posI.x) / 2, (posO.y + posI.y) / 2);
 
             // 駅の位置を描画する

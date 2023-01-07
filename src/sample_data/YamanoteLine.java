@@ -53,7 +53,7 @@ public class YamanoteLine extends LineData {
     }
 
     @Override
-    public Point calcPositionOnLinePath(float dist, Direction direction) {
+    public Point calcPosOnLinePath(float dist, Direction direction) {
         Point center = new Point(500, 500);
         float radius = 0.0f;
 

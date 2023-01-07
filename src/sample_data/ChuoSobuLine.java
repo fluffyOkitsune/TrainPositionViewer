@@ -72,7 +72,7 @@ public class ChuoSobuLine extends LineData {
     private Point origin = new Point(100, 100);
 
     @Override
-    public Point calcPositionOnLinePath(float dist, Direction direction) {
+    public Point calcPosOnLinePath(float dist, Direction direction) {
         int offset;
 
         // 西（左）方向が下り

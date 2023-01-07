@@ -111,7 +111,7 @@ public class TokaidoLine extends LineData {
     private Point origin = new Point(200, 200);
 
     @Override
-    public Point calcPositionOnLinePath(float dist, Direction direction) {
+    public Point calcPosOnLinePath(float dist, Direction direction) {
         int offset;
 
         if (direction == Direction.OUTBOUND) {

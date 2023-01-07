@@ -40,7 +40,6 @@ public abstract class LineData {
     public final void importCSV() throws FileNotFoundException {
         // 駅データの入力
         setStationData(StationData.createStationData(getStationDataCsvPath()));
-        genLinePath();
 
         // 列車運行データの入力
         TimeTable[] trainData;
@@ -108,12 +107,42 @@ public abstract class LineData {
     // --------------------------------------------------------------------------------
     // 列車位置を計算する
     // --------------------------------------------------------------------------------
-    public abstract Point calcPositionOnLinePath(float dist, Direction direction);
+    // 路線ごとに異なる経路
+    public abstract Point calcPosOnLinePath(float dist, Direction direction);
 
-    public void update(Time currentTime) {
-        for (Train t : train) {
-            t.update(currentTime);
+    private short[][] linePath;
+
+    private final static int IDX_OUT_X = 0;
+    private final static int IDX_OUT_Y = 1;
+    private final static int IDX_IN_X = 2;
+    private final static int IDX_IN_Y = 3;
+
+    private final static int NUM_SEPARATE = 1000;
+
+    // あらかじめ経路の座標を保持しておくことで計算量を削減する
+    public void compilePosOnLinePath() {
+        linePath = new short[4][NUM_SEPARATE + 1];
+        Point pos;
+        for (int i = 0; i < NUM_SEPARATE + 1; i++) {
+            // 下り線
+            pos = calcPosOnLinePath((float) i / NUM_SEPARATE, Direction.OUTBOUND);
+            linePath[IDX_OUT_X][i] = (short) pos.x;
+            linePath[IDX_OUT_Y][i] = (short) pos.y;
+
+            // 上り線
+            pos = calcPosOnLinePath((float) i / NUM_SEPARATE, Direction.INBOUND);
+            linePath[IDX_IN_X][i] = (short) pos.x;
+            linePath[IDX_IN_Y][i] = (short) pos.y;
         }
+    }
+
+    public Point getPositionOnLinePath(float dist, Direction direction) {
+        int idx = (int) (dist * NUM_SEPARATE);
+
+        idx = Integer.max(idx, NUM_SEPARATE + 1);
+        idx = Integer.min(idx, 0);
+
+        return new Point(linePath[IDX_OUT_X][idx], linePath[IDX_OUT_Y][idx]);
     }
 
     // --------------------------------------------------------------------------------
@@ -135,35 +164,6 @@ public abstract class LineData {
         }
 
         return new Point(0, 0);
-    }
-
-    private short[][] linePath;
-    private final static int NUM_SEPARATE = 1000;
-
-    private void genLinePath() {
-        linePath = new short[4][NUM_SEPARATE + 1];
-        Point pos;
-        for (int i = 0; i < NUM_SEPARATE + 1; i++) {
-            // 下り線
-            pos = calcPositionOnLinePath((float) i / NUM_SEPARATE, Direction.OUTBOUND);
-            linePath[0][i] = (short) pos.x;
-            linePath[1][i] = (short) pos.y;
-
-            // 上り線
-            pos = calcPositionOnLinePath((float) i / NUM_SEPARATE, Direction.INBOUND);
-            linePath[2][i] = (short) pos.x;
-            linePath[3][i] = (short) pos.y;
-        }
-    }
-
-    public void drawLinePath(Graphics g) {
-        for (int i = 0; i < NUM_SEPARATE; i++) {
-            // 下り線
-            g.drawLine(linePath[0][i], linePath[1][i], linePath[0][i + 1], linePath[1][i + 1]);
-
-            // 上り線
-            g.drawLine(linePath[2][i], linePath[3][i], linePath[2][i + 1], linePath[3][i + 1]);
-        }
     }
 
     // --------------------------------------------------------------------------------
@@ -211,12 +211,14 @@ public abstract class LineData {
 
     public abstract Color getTypeColor(TrainData trainData);
 
+    // 列車アイコンを描画する
     public void drawTrain(Graphics g) {
         for (Train t : train) {
             t.draw(g);
         }
     }
 
+    // 列車番号を描画する
     public void drawTrainID(Graphics g) {
         for (Train t : train) {
             if (t.onDuty) {
@@ -237,9 +239,27 @@ public abstract class LineData {
         }
     }
 
+    public void drawLinePath(Graphics g) {
+        for (int i = 0; i < NUM_SEPARATE; i++) {
+            // 下り線
+            g.drawLine(linePath[IDX_OUT_X][i], linePath[IDX_OUT_Y][i],
+                    linePath[IDX_OUT_X][i + 1], linePath[IDX_OUT_Y][i + 1]);
+
+            // 上り線
+            g.drawLine(linePath[IDX_IN_X][i], linePath[IDX_IN_Y][i],
+                    linePath[IDX_IN_X][i + 1], linePath[IDX_IN_Y][i + 1]);
+        }
+    }
+
     // --------------------------------------------------------------------------------
     // インタフェース
     // --------------------------------------------------------------------------------
+    public void update(Time currentTime) {
+        for (Train t : train) {
+            t.update(currentTime);
+        }
+    }
+
     public void setStationData(StationData[] stationData) {
         this.stationData = stationData;
     }
