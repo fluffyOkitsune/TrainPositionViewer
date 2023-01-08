@@ -171,7 +171,7 @@ public class Train {
     // --------------------------------------------------------------------------------
     private float calcPos(Time currentTime) {
         int depStaID = getDepartedStaID();
-        int dstStaID = getDitinationStaID();
+        int dstStaID = getDestinationStaID();
 
         StationData[] stationData = lineData.getStationData();
         float trainPosCurr;
@@ -215,7 +215,7 @@ public class Train {
         }
     }
 
-    public int getDitinationStaID() {
+    public int getDestinationStaID() {
         if (destination == null) {
             return -1;
         } else {
@@ -227,13 +227,12 @@ public class Train {
         return trainData.getTimeTable().direction;
     }
 
+    public int getTerminalStaID() {
+        return trainData.getTimeTable().getTerminalStaID();
+    }
+
     public String getTerminalName() {
-        if (!onDuty) {
-            return "";
-        } else {
-            int terminalStaID = trainData.getTimeTable().getTerminalStaID();
-            return lineData.getStationName(terminalStaID);
-        }
+        return lineData.getStationName(getTerminalStaID());
     }
 
     // --------------------------------------------------------------------------------
@@ -301,9 +300,15 @@ public class Train {
     }
 
     // --------------------------------------------------------------------------------
+    // インタフェース
+    // --------------------------------------------------------------------------------
+    public LineData getLineData() {
+        return this.lineData;
+    }
+
+    // --------------------------------------------------------------------------------
     @Override
     public String toString() {
         return "列車番号: " + trainData.getTimeTable().trainID;
     }
-
 }

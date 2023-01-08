@@ -62,7 +62,7 @@ public class App implements ChangeListener {
             }
 
             // 東急電鉄線 (2018[平日])
-            if (true) {
+            if (false) {
                 lineData = new LineData[6];
                 lineData[0] = new TokyuIkegamiLine();
                 lineData[1] = new TokyuTamagawaLine();
@@ -86,6 +86,12 @@ public class App implements ChangeListener {
             if (false) {
                 lineData = new LineData[1];
                 lineData[0] = new KururiLine();
+            }
+
+            // 京阪本線 (2017[平日])
+            if (true) {
+                lineData = new LineData[1];
+                lineData[0] = new KeihanMainLine();
             }
 
             // 奈良線 (2018[平日])

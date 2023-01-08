@@ -112,31 +112,31 @@ public class TimeTableTest {
 
         lineData.update(Time.parseTime("1205"));
         assertEquals(0, train[0].getDepartedStaID());
-        assertEquals(1, train[0].getDitinationStaID());
+        assertEquals(1, train[0].getDestinationStaID());
 
         // B-C
         lineData.update(Time.parseTime("1210"));
         assertEquals(1, train[0].getDepartedStaID());
-        assertEquals(2, train[0].getDitinationStaID());
+        assertEquals(2, train[0].getDestinationStaID());
 
         // B-C
         lineData.update(Time.parseTime("1215"));
         assertEquals(1, train[0].getDepartedStaID());
-        assertEquals(2, train[0].getDitinationStaID());
+        assertEquals(2, train[0].getDestinationStaID());
 
         // C
         lineData.update(Time.parseTime("1225"));
         assertEquals(2, train[0].getDepartedStaID());
-        assertEquals(2, train[0].getDitinationStaID());
+        assertEquals(2, train[0].getDestinationStaID());
 
         // D-E
         lineData.update(Time.parseTime("1245"));
         assertEquals(3, train[0].getDepartedStaID());
-        assertEquals(4, train[0].getDitinationStaID());
+        assertEquals(4, train[0].getDestinationStaID());
 
         // E
         lineData.update(Time.parseTime("1251"));
         assertEquals(4, train[0].getDepartedStaID());
-        assertEquals(4, train[0].getDitinationStaID());
+        assertEquals(4, train[0].getDestinationStaID());
     }
 }
