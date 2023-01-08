@@ -24,6 +24,7 @@ public class TrainInfoWindow {
 
     private String[] contents;
     private Rectangle maxStrSizeRext;
+    private static final Font FONT_TRAIN_INFO = new Font(null, Font.PLAIN, 10);
 
     public void drawTrainInfo(Graphics g) {
         if (selectedTrain == null) {
@@ -67,6 +68,7 @@ public class TrainInfoWindow {
             g.drawRect(rect.x - 2, rect.y - 2, rect.width + 4, rect.height + 4);
 
             // 文字を描画する
+            g.setFont(FONT_TRAIN_INFO);
             drawStringsTowardVerticalAxsis(g, contents, rect.getLocation());
         }
     }

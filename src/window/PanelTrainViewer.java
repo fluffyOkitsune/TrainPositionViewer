@@ -76,12 +76,11 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
             drawRailLine(offscreenG, ld);
         }
 
-        drawLayerTrainViewer(offscreenG);
+        drawTrainViewer(offscreenG);
         drawAnimWindows(offscreenG);
     }
 
-    // 列車ビューワを描画する
-    synchronized public void drawLayerTrainViewer(Graphics2D g) {
+    private void drawTrainViewer(Graphics2D g) {
         for (LineData ld : app.lineData) {
             ld.drawTrain(g);
         }
@@ -89,11 +88,14 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         for (LineData ld : app.lineData) {
             drawStation(g, ld);
         }
+
         drawStops(g, selectedTrain, stopsStaID);
 
         for (LineData ld : app.lineData) {
             drawStaName(g, ld);
         }
+
+        drawDestination(g, selectedTrain);
 
         if (enableDispID) {
             for (LineData ld : app.lineData) {
@@ -103,7 +105,7 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
     }
 
     // アニメーションのあるウィンドウを描画する（50[ms] で描画）
-    synchronized public void drawAnimWindows(Graphics2D g) {
+    private void drawAnimWindows(Graphics2D g) {
         trainInfoWindow.drawTrainInfo(offscreenG);
     }
 
@@ -138,16 +140,15 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         }
     }
 
-    private void drawStaName(Graphics g, LineData lineData) {
-        for (StationData sd : lineData.getStationData()) {
-            Point posO = lineData.calcPosOnLinePath(sd.getDistProportion(), Direction.OUTBOUND);
-            Point posI = lineData.calcPosOnLinePath(sd.getDistProportion(), Direction.INBOUND);
-            Point pos = new Point((posO.x + posI.x) / 2, (posO.y + posI.y) / 2);
+    private static final Font FONT_STA_NAME = new Font(null, Font.PLAIN, 10);
 
-            // 駅名を描画する
-            String staName = sd.getName();
+    private void drawStaName(Graphics g, LineData lineData) {
+        for (StationData stationData : lineData.getStationData()) {
+            Point pos = calcStationPos(lineData, stationData);
+            String staName = stationData.getName();
 
             // TODO: 縁取り(暫定)
+            g.setFont(FONT_STA_NAME);
             g.setColor(Color.WHITE);
             for (int i = 0; i < 9; i++) {
                 Point offsetPos = new Point(pos.x + i / 3 - 1, pos.y + i % 3 - 1);
@@ -157,6 +158,36 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
             g.setColor(lineData.getLineColor());
             LineData.drawString(g, staName, pos);
         }
+    }
+
+    private Point calcStationPos(LineData lineData, StationData sd) {
+        Point posO = lineData.calcPosOnLinePath(sd.getDistProportion(), Direction.OUTBOUND);
+        Point posI = lineData.calcPosOnLinePath(sd.getDistProportion(), Direction.INBOUND);
+        return new Point((posO.x + posI.x) / 2, (posO.y + posI.y) / 2);
+    }
+
+    private static final Font FONT_DESTINATION = new Font(null, Font.BOLD, 16);
+
+    private void drawDestination(Graphics2D g, Train train) {
+        if (train == null) {
+            return;
+        }
+
+        LineData lineData = train.getLineData();
+        StationData stationData = lineData.getStationData(train.getTerminalStaID());
+        Point pos = calcStationPos(lineData, stationData);
+        String staName = stationData.getName();
+
+        // TODO: 縁取り(暫定)
+        g.setFont(FONT_DESTINATION);
+        g.setColor(Color.WHITE);
+        for (int i = 0; i < 9; i++) {
+            Point offsetPos = new Point(pos.x + i / 3 - 1, pos.y + i % 3 - 1);
+            LineData.drawString(g, staName, offsetPos);
+        }
+
+        g.setColor(train.getTypeColor());
+        LineData.drawString(g, staName, pos);
     }
 
     private int[] stopsStaID;
@@ -187,7 +218,14 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
             Point posI = lineData.calcPosOnLinePath(sd.getDistProportion(), Direction.INBOUND);
             Point pos = new Point((posO.x + posI.x) / 2, (posO.y + posI.y) / 2);
 
-            baseColor = new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), getStopsColorAlpha());
+            // これから停車する駅は目立つようにして、すでに過ぎた駅は半透明にする。
+
+            if (hasPassedStation(train, staID)) {
+                baseColor = new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(),
+                        getStopsColorAlpha());
+            } else {
+                baseColor = new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), 0x40);
+            }
 
             g.setColor(baseColor);
             g.fillOval(pos.x - radiusOut / 2, pos.y - radiusOut / 2, radiusOut, radiusOut);
@@ -200,6 +238,15 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
             drawStopsAnimCnt++;
         } else {
             drawStopsAnimCnt = 0;
+        }
+    }
+
+    private boolean hasPassedStation(Train train, int staID) {
+        // 上りの場合はstaIDが小さくなる方向に列車が進むことになる。
+        if (train.getDirection() == Direction.OUTBOUND) {
+            return staID > train.getDepartedStaID();
+        } else {
+            return staID < train.getDepartedStaID();
         }
     }
 
