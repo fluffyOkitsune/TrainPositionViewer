@@ -86,7 +86,12 @@ public class TrainInfoWindow {
         min = Integer.min(min, g);
         min = Integer.min(min, b);
 
-        return new Color(max + min - r, max + min - g, max + min - b);
+        if (max == min) {
+            // 彩度ゼロなので明るさを変えて補色とする。
+            return new Color(255 - max, 255 - max, 255 - max);
+        } else {
+            return new Color(max + min - r, max + min - g, max + min - b);
+        }
     }
 
     // 選択した列車を指し示す枠
