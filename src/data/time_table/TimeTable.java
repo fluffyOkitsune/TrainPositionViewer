@@ -197,6 +197,17 @@ public class TimeTable {
         return timeData[idx].getArrTime();
     }
 
+    // 停車駅の駅IDを返す
+    public int[] getStopsStaID(){
+        // Stream.map はプリミティブ型が使えないのかもしれない……
+        int[] stopsStaID = new int[this.timeData.length];
+        for(int i = 0; i < stopsStaID.length; i++){
+            stopsStaID[i] = this.timeData[i].getStaID();   
+        }
+        return stopsStaID;
+    }
+
+    // 行先の駅IDを返す
     public int getTerminalStaID() {
         return timeData[timeData.length - 1].getStaID();
     }

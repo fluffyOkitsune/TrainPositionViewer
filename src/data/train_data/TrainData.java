@@ -5,8 +5,7 @@ import data.time_table.TimeTable;
 
 // ロード後に変化することのない列車運行データを格納する
 public class TrainData {
-    // 時刻表データ（読んだそのままで加工しない）
-    // #TODO: このデータはTrainを生成した後は不要になるので、クリア処理を設ける
+    // この列車の停車駅データ
     private TimeTable timeTable;
 
     // 臨時列車

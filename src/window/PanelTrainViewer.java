@@ -28,6 +28,10 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
     PanelTrainViewer(App app) {
         this.app = app;
 
+        // 変数初期値
+        selectedTrain = null;
+        stopsStaID = STOPS_NOTHING;
+
         // 画面を用意する
         setPreferredSize(PanelTrainViewer.WINDOW_CANVAS_SIZE);
 
@@ -85,6 +89,7 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         for (LineData ld : app.lineData) {
             drawStation(g, ld);
         }
+        drawStops(g, selectedTrain, stopsStaID);
 
         if (enableDispID) {
             for (LineData ld : app.lineData) {
@@ -100,12 +105,18 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
 
     private final Stroke strokeDrawLine = new BasicStroke(5.0f);
 
+    // --------------------------------------------------------------------------------
+    // 描画処理（路線）
+    // --------------------------------------------------------------------------------
     private void drawRailLine(Graphics g, LineData lineData) {
         g.setColor(lineData.getLineColor());
         ((Graphics2D) g).setStroke(strokeDrawLine);
         lineData.drawLinePath(g);
     }
 
+    // --------------------------------------------------------------------------------
+    // 描画処理（駅）
+    // --------------------------------------------------------------------------------
     private void drawStation(Graphics g, LineData lineData) {
         // 駅を書く
         final int radiusOut = 20;
@@ -136,20 +147,75 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         }
     }
 
+    private int[] stopsStaID;
+    private Train selectedTrain;
+    private static final int[] STOPS_NOTHING = new int[0];
+
+    public void drawStops(Graphics2D g, Train train, int[] stopsStaID) {
+        if (train == null || stopsStaID.length == 0) {
+            return;
+        }
+
+        final int radiusOut = 30;
+        final int radiusMid = 25;
+        final int radiusIn = 20;
+
+        LineData lineData = train.getLineData();
+        for (int staID : stopsStaID) {
+            StationData sd = lineData.getStationData(staID);
+            Point posO = lineData.calcPosOnLinePath(sd.getDistProportion(), Direction.OUTBOUND);
+            Point posI = lineData.calcPosOnLinePath(sd.getDistProportion(), Direction.INBOUND);
+            Point pos = new Point((posO.x + posI.x) / 2, (posO.y + posI.y) / 2);
+
+            g.setColor(train.getTypeColor());
+            g.fillOval(pos.x - radiusOut / 2, pos.y - radiusOut / 2, radiusOut, radiusOut);
+            g.setColor(Color.WHITE);
+            g.fillOval(pos.x - radiusMid / 2, pos.y - radiusMid / 2, radiusMid, radiusMid);
+            g.setColor(train.getTypeColor());
+            g.fillOval(pos.x - radiusIn / 2, pos.y - radiusIn / 2, radiusIn, radiusIn);
+        }
+    }
+
+    private int[] getStopsStaID(Train train) {
+        if (train == null) {
+            return STOPS_NOTHING;
+        } else {
+            return train.trainData.getTimeTable().getStopsStaID();
+        }
+    }
+
+    // --------------------------------------------------------------------------------
+    // マウスイベント
+    // --------------------------------------------------------------------------------
     @Override
     public void mouseClicked(MouseEvent e) {
-        // クリックした列車アイコンに対応する列車データを探索し、セットする
-        Train selectedTrain = null;
+        selectTrain(seekClickedTrain(e));
+        repaint();
+    }
+
+    // 列車をクリックして選択したときの処理
+    private void selectTrain(Train train) {
+        selectedTrain = train;
+
+        if (train == null) {
+            return;
+        } else {
+            trainInfoWindow.selectTrain(train, offscreenG);
+            stopsStaID = getStopsStaID(train);
+        }
+    }
+
+    // クリックした列車アイコンに対応する列車データを探索する
+    private Train seekClickedTrain(MouseEvent e) {
+        Train train = null;
         for (LineData ld : app.lineData) {
             for (Train t : ld.getTrain()) {
                 if (t.getOnMouse(e)) {
-                    selectedTrain = t;
+                    train = t;
                 }
             }
         }
-        trainInfoWindow.selectTrain(selectedTrain, offscreenG);
-
-        repaint();
+        return train;
     }
 
     @Override
