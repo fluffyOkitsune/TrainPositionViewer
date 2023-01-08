@@ -15,7 +15,9 @@ import draw.Train;
 public class PanelTrainViewer extends JPanel implements MouseInputListener {
     static final Dimension WINDOW_CANVAS_SIZE = new Dimension(4000, 3000);
 
-    Image offscreenImg, layerTrainViewer, layerAnimWindow;
+    // オフスクリーンイメージ
+    Image offscreenImg;
+    Graphics2D offscreenG;
 
     private App app;
     public boolean enableDispID;
@@ -36,10 +38,7 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
     public void initialize() {
         offscreenImg = new BufferedImage(WINDOW_CANVAS_SIZE.width, WINDOW_CANVAS_SIZE.height,
                 BufferedImage.TYPE_4BYTE_ABGR);
-        layerTrainViewer = new BufferedImage(WINDOW_CANVAS_SIZE.width, WINDOW_CANVAS_SIZE.height,
-                BufferedImage.TYPE_4BYTE_ABGR);
-        layerAnimWindow = new BufferedImage(WINDOW_CANVAS_SIZE.width, WINDOW_CANVAS_SIZE.height,
-                BufferedImage.TYPE_4BYTE_ABGR);
+        offscreenG = (Graphics2D) offscreenImg.getGraphics();
 
         trainInfoWindow = new TrainInfoWindow();
     }
@@ -56,33 +55,29 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         g.drawImage(offscreenImg, 0, 0, null);
     }
 
-    private void clearImg(Image image) {
-        Graphics2D g = (Graphics2D) image.getGraphics();
+    private void clearImg(Image image, Graphics2D g) {
+        Composite temp = g.getComposite();
+
         g.setComposite(AlphaComposite.Clear);
         g.fillRect(0, 0, image.getWidth(null), image.getHeight(null));
-        g.dispose();
+
+        g.setComposite(temp);
     }
 
     synchronized public void drawOffscreen() {
-        Graphics g = offscreenImg.getGraphics();
-        g.setColor(BG_COLOR);
-        g.fillRect(0, 0, offscreenImg.getWidth(null), offscreenImg.getHeight(null));
-
-        g.drawImage(layerTrainViewer, 0, 0, null);
-        g.drawImage(layerAnimWindow, 0, 0, null);
-
-        g.dispose();
-    }
-
-    // 列車ビューワを描画する（update時に描画する）
-    public void drawLayerTrainViewer() {
-        clearImg(layerTrainViewer);
-        Graphics g = layerTrainViewer.getGraphics();
+        offscreenG.setColor(BG_COLOR);
+        offscreenG.fillRect(0, 0, offscreenImg.getWidth(null), offscreenImg.getHeight(null));
 
         for (LineData ld : app.lineData) {
-            drawRailLine(g, ld);
+            drawRailLine(offscreenG, ld);
         }
 
+        drawLayerTrainViewer(offscreenG);
+        drawAnimWindows(offscreenG);
+    }
+
+    // 列車ビューワを描画する
+    synchronized public void drawLayerTrainViewer(Graphics2D g) {
         for (LineData ld : app.lineData) {
             ld.drawTrain(g);
         }
@@ -96,18 +91,11 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
                 ld.drawTrainID(g);
             }
         }
-
-        g.dispose();
     }
 
     // アニメーションのあるウィンドウを描画する（50[ms] で描画）
-    synchronized public void drawLayerAnimWindow() {
-        clearImg(layerAnimWindow);
-        Graphics g = layerAnimWindow.getGraphics();
-
-        trainInfoWindow.drawTrainInfo(g);
-
-        g.dispose();
+    synchronized public void drawAnimWindows(Graphics2D g) {
+        trainInfoWindow.drawTrainInfo(offscreenG);
     }
 
     private final Stroke strokeDrawLine = new BasicStroke(5.0f);
@@ -115,23 +103,7 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
     private void drawRailLine(Graphics g, LineData lineData) {
         g.setColor(lineData.getLineColor());
         ((Graphics2D) g).setStroke(strokeDrawLine);
-
-        // 路線を書く
-        int NUM_SEPARATE = 1000;
-
-        // 下り線
-        for (int i = 0; i < NUM_SEPARATE; i++) {
-            Point start = lineData.calcPositionOnLinePath((float) i / NUM_SEPARATE, Direction.OUTBOUND);
-            Point end = lineData.calcPositionOnLinePath(((float) i + 1) / NUM_SEPARATE, Direction.OUTBOUND);
-            g.drawLine(start.x, start.y, end.x, end.y);
-        }
-
-        // 上り線
-        for (int i = 0; i < NUM_SEPARATE; i++) {
-            Point start = lineData.calcPositionOnLinePath((float) i / NUM_SEPARATE, Direction.INBOUND);
-            Point end = lineData.calcPositionOnLinePath(((float) i + 1) / NUM_SEPARATE, Direction.INBOUND);
-            g.drawLine(start.x, start.y, end.x, end.y);
-        }
+        lineData.drawLinePath(g);
     }
 
     private void drawStation(Graphics g, LineData lineData) {
@@ -139,8 +111,8 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         final int radiusOut = 20;
         final int radiusIn = 15;
         for (StationData sd : lineData.getStationData()) {
-            Point posO = lineData.calcPositionOnLinePath(sd.getDistProportion(), Direction.OUTBOUND);
-            Point posI = lineData.calcPositionOnLinePath(sd.getDistProportion(), Direction.INBOUND);
+            Point posO = lineData.calcPosOnLinePath(sd.getDistProportion(), Direction.OUTBOUND);
+            Point posI = lineData.calcPosOnLinePath(sd.getDistProportion(), Direction.INBOUND);
             Point pos = new Point((posO.x + posI.x) / 2, (posO.y + posI.y) / 2);
 
             // 駅の位置を描画する
@@ -175,7 +147,7 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
                 }
             }
         }
-        trainInfoWindow.setTrain(selectedTrain);
+        trainInfoWindow.selectTrain(selectedTrain, offscreenG);
 
         repaint();
     }

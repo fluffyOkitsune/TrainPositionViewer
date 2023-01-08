@@ -59,7 +59,7 @@ public class SoyaLine extends LineData {
         private Point origin = new Point(200, 200);
 
         @Override
-        public Point calcPositionOnLinePath(float dist, Direction direction) {
+        public Point calcPosOnLinePath(float dist, Direction direction) {
                 Point offset;
                 if (direction == Direction.OUTBOUND) {
                         offset = new Point(+0, -20);

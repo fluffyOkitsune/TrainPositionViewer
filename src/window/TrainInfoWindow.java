@@ -23,6 +23,7 @@ public class TrainInfoWindow {
     private final int cntAnimOpenTh = 5;
 
     private String[] contents;
+    private Rectangle maxStrSizeRext;
 
     public void drawTrainInfo(Graphics g) {
         if (selectedTrain == null) {
@@ -35,7 +36,6 @@ public class TrainInfoWindow {
         drawTrainIndicationFrame(g);
 
         // 最大サイズの文字に合わせる
-        Rectangle maxStrSizeRext = calcWindowSizeRect(g, contents);
         rect.width = maxStrSizeRext.width;
         rect.height = maxStrSizeRext.height * contents.length;
 
@@ -141,7 +141,7 @@ public class TrainInfoWindow {
         return str;
     }
 
-    public void setTrain(Train train) {
+    public void selectTrain(Train train, Graphics2D g) {
         this.selectedTrain = train;
         this.cntAnimOpen = 0;
         if (train == null) {
@@ -169,6 +169,9 @@ public class TrainInfoWindow {
             contents[1] = trainName;
             contents[2] = destination;
             contents[3] = note;
+
+            // ウィンドウのサイズを計算する
+            maxStrSizeRext = calcWindowSizeRect(g, contents);
         }
     }
 

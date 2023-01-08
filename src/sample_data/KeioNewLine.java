@@ -61,7 +61,7 @@ public class KeioNewLine extends LineData {
     private Point origin = new Point(200, 200);
 
     @Override
-    public Point calcPositionOnLinePath(float dist, Direction direction) {
+    public Point calcPosOnLinePath(float dist, Direction direction) {
         int offset = 0;
         if (direction == Direction.OUTBOUND) {
             offset = 20;

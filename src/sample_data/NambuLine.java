@@ -56,7 +56,7 @@ public class NambuLine extends LineData {
     }
 
     @Override
-    public Point calcPositionOnLinePath(float dist, Direction direction) {
+    public Point calcPosOnLinePath(float dist, Direction direction) {
         int startX = 100;
         int startY = 100;
 

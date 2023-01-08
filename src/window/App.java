@@ -24,7 +24,7 @@ public class App implements ChangeListener {
     App() {
         try {
             // 東海道新幹線
-            if (true) {
+            if (false) {
                 lineData = new LineData[1];
                 lineData[0] = new TokaidoShinkansen();
             }
@@ -61,6 +61,17 @@ public class App implements ChangeListener {
                 lineData[0] = new TokaidoLine();
             }
 
+            // 東急電鉄線 (2018[平日])
+            if (true) {
+                lineData = new LineData[6];
+                lineData[0] = new TokyuIkegamiLine();
+                lineData[1] = new TokyuTamagawaLine();
+                lineData[2] = new TokyuDenentoshiLine();
+                lineData[3] = new TokyuOimachiLine();
+                lineData[4] = new TokyuMeguroLine();
+                lineData[5] = new TokyuToyokoLine();
+            }
+
             // 京王線 (2018[平日])
             if (false) {
                 lineData = new LineData[5];
@@ -91,6 +102,7 @@ public class App implements ChangeListener {
 
             for (LineData ld : lineData) {
                 ld.importCSV();
+                ld.compilePosOnLinePath();
             }
 
         } catch (FileNotFoundException e) {
