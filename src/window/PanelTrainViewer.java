@@ -30,7 +30,7 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
 
         // 変数初期値
         selectedTrain = null;
-        stopsStaID = STOPS_NOTHING;
+        stopsStations = STOPS_NOTHING;
 
         // 画面を用意する
         setPreferredSize(PanelTrainViewer.WINDOW_CANVAS_SIZE);
@@ -89,7 +89,7 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
             drawStation(g, ld);
         }
 
-        drawStops(g, selectedTrain, stopsStaID);
+        drawStops(g, selectedTrain, stopsStations);
 
         for (LineData ld : app.lineData) {
             drawStaName(g, ld);
@@ -174,7 +174,7 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         }
 
         LineData lineData = train.getLineData();
-        StationData stationData = lineData.getStationData(train.getTerminalStaID());
+        StationData stationData = train.getTerminalStation();
         Point pos = calcStationPos(lineData, stationData);
         String staName = stationData.getName();
 
@@ -190,15 +190,15 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         LineData.drawString(g, staName, pos);
     }
 
-    private int[] stopsStaID;
+    private StationData[] stopsStations;
     private Train selectedTrain;
     private int drawStopsAnimCnt = 0;
     private int drawStopsAnimCntTh = 50;
 
-    private static final int[] STOPS_NOTHING = new int[0];
+    private static final StationData[] STOPS_NOTHING = new StationData[0];
 
-    public void drawStops(Graphics2D g, Train train, int[] stopsStaID) {
-        if (train == null || stopsStaID.length == 0) {
+    public void drawStops(Graphics2D g, Train train, StationData[] stopStations) {
+        if (train == null || stopStations.length == 0) {
             return;
         }
         if (!train.onDuty) {
@@ -212,15 +212,14 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         LineData lineData = train.getLineData();
         Color baseColor = train.getTypeColor();
 
-        for (int staID : stopsStaID) {
-            StationData sd = lineData.getStationData(staID);
-            Point posO = lineData.calcPosOnLinePath(sd.getDistProportion(), Direction.OUTBOUND);
-            Point posI = lineData.calcPosOnLinePath(sd.getDistProportion(), Direction.INBOUND);
+        for (StationData station : stopStations) {
+            Point posO = lineData.calcPosOnLinePath(station.getDistProportion(), Direction.OUTBOUND);
+            Point posI = lineData.calcPosOnLinePath(station.getDistProportion(), Direction.INBOUND);
             Point pos = new Point((posO.x + posI.x) / 2, (posO.y + posI.y) / 2);
 
             // これから停車する駅は目立つようにして、すでに過ぎた駅は半透明にする。
 
-            if (hasPassedStation(train, staID)) {
+            if (hasPassedStation(train, station)) {
                 baseColor = new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(),
                         getStopsColorAlpha());
             } else {
@@ -241,12 +240,12 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         }
     }
 
-    private boolean hasPassedStation(Train train, int staID) {
+    private boolean hasPassedStation(Train train, StationData stationData) {
         // 上りの場合はstaIDが小さくなる方向に列車が進むことになる。
         if (train.getDirection() == Direction.OUTBOUND) {
-            return staID > train.getDepartedStaID();
+            return stationData.getStationID() > train.getDepartedStation().getStationID();
         } else {
-            return staID < train.getDepartedStaID();
+            return stationData.getStationID() < train.getDepartedStation().getStationID();
         }
     }
 
@@ -259,11 +258,11 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         }
     }
 
-    private int[] getStopsStaID(Train train) {
+    private StationData[] getStopsStations(Train train) {
         if (train == null) {
             return STOPS_NOTHING;
         } else {
-            return train.trainData.getTimeTable().getStopsStaID();
+            return train.trainData.getTimeTable().getStopStations();
         }
     }
 
@@ -281,7 +280,7 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         selectedTrain = train;
 
         trainInfoWindow.selectTrain(train, offscreenG);
-        stopsStaID = getStopsStaID(train);
+        stopsStations = getStopsStations(train);
     }
 
     // クリックした列車アイコンに対応する列車データを探索する

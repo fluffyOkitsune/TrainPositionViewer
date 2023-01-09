@@ -162,11 +162,11 @@ public class TokaidoLine extends LineData {
     @Override
     public Image getIconImg(TrainData trainData) {
         // 寝台特急
-        if (trainData.getTimeTable().trainType.equals("★彡")) {
+        if (trainData.getTimeTable().getTrainType().equals("★彡")) {
             return imageIconSleepingLtd;
         }
-        if (trainData.getTimeTable().trainType.equals("特急")) {
-            String trainName = trainData.getTimeTable().trainName;
+        if (trainData.getTimeTable().getTrainType().equals("特急")) {
+            String trainName = trainData.getTimeTable().getTrainName();
             switch (trainName) {
                 case "スーパービュー踊り子":
                     return imageIconLtdSVO;
@@ -178,8 +178,8 @@ public class TokaidoLine extends LineData {
             }
         }
 
-        String trainID = trainData.getTimeTable().trainID;
-        String trainType = trainData.getTimeTable().trainType;
+        String trainID = trainData.getTimeTable().getTrainID();
+        String trainType = trainData.getTimeTable().getTrainType();
         char alphabet = trainID.charAt(trainID.length() - 1);
         switch (alphabet) {
             case 'E':
@@ -230,7 +230,7 @@ public class TokaidoLine extends LineData {
 
     @Override
     public Color getTypeColor(TrainData trainData) {
-        switch (trainData.getTimeTable().trainType) {
+        switch (trainData.getTimeTable().getTrainType()) {
             case "★彡": // 寝台特急
                 return Color.RED;
             case "特急":

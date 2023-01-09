@@ -109,7 +109,7 @@ public class KeihanMainLine extends LineData {
 
     @Override
     public Image getIconImg(TrainData trainData) {
-        switch (trainData.getTimeTable().trainType) {
+        switch (trainData.getTimeTable().getTrainType()) {
             case "ﾗｲﾅｰ":
             case "快特":
                 return imageIconRapidLtd;
@@ -143,7 +143,7 @@ public class KeihanMainLine extends LineData {
 
     @Override
     public Color getTypeColor(TrainData trainData) {
-        switch (trainData.getTimeTable().trainType) {
+        switch (trainData.getTimeTable().getTrainType()) {
             case "ﾗｲﾅｰ":
                 return COLOR_LINER;
             case "特急":

@@ -185,7 +185,7 @@ public class SoyaLine extends LineData {
 
         @Override
         public Image getIconImg(TrainData trainData) {
-                switch (trainData.getTimeTable().trainType) {
+                switch (trainData.getTimeTable().getTrainType()) {
                         case "特急":
                                 return imageIconLtd;
                         case "快速":
@@ -197,7 +197,7 @@ public class SoyaLine extends LineData {
 
         @Override
         public Color getTypeColor(TrainData trainData) {
-                switch (trainData.getTimeTable().trainType) {
+                switch (trainData.getTimeTable().getTrainType()) {
                         case "特急":
                                 return Color.RED;
                         case "快速":

@@ -1,11 +1,10 @@
 package data.time_table;
 
 import data.Time;
-import data.line_data.LineData.Direction;
 
 // 時刻表の時刻
 public class TimeData {
-    private int staID;
+    private StationData stationData;
 
     public static final byte TYPE_BLANK = 0;
     public static final byte TYPE_STOP = 1;
@@ -13,12 +12,12 @@ public class TimeData {
     public static final byte TYPE_DETOUR = 3;
     private byte type;
 
-    public static final int TIME_NOT_DEFINED = -1;
     private Time arrivedTime;
     private Time departureTime;
 
-    TimeData(int staID) {
-        this.staID = staID;
+    TimeData(StationData stationData) {
+        this.stationData = stationData;
+        
         this.type = TYPE_BLANK;
         setArrivedTime(null);
         setDepartureTime(null);
@@ -74,15 +73,6 @@ public class TimeData {
         }
     }
 
-    // 駅IDがStationDataの駅IDと一致するように修正する
-    public TimeData fixStaID(int numStation, Direction direction) {
-        // 上りの場合は駅IDをStationDataのIDに対応するように変換する
-        if (direction == Direction.INBOUND) {
-            staID = numStation - 1 - staID;
-        }
-        return this;
-    }
-
     // --------------------------------------------------------------------------------
     @Override
     public String toString() {
@@ -90,8 +80,8 @@ public class TimeData {
     }
 
     // --------------------------------------------------------------------------------
-    public int getStaID() {
-        return staID;
+    public StationData getStationData() {
+        return stationData;
     }
 
     public byte getType() {

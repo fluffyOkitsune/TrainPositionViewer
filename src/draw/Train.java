@@ -170,8 +170,8 @@ public class Train {
     // 現在時刻の列車位置
     // --------------------------------------------------------------------------------
     private float calcPos(Time currentTime) {
-        int depStaID = getDepartedStaID();
-        int dstStaID = getDestinationStaID();
+        int depStaID = getDepartedStation().getStationID();
+        int dstStaID = getDestinationStation().getStationID();
 
         StationData[] stationData = lineData.getStationData();
         float trainPosCurr;
@@ -207,32 +207,28 @@ public class Train {
     }
 
     // --------------------------------------------------------------------------------
-    public int getDepartedStaID() {
+    public StationData getDepartedStation() {
         if (departed == null) {
-            return -1;
+            return null;
         } else {
-            return departed.getStaID();
+            return departed.getStationData();
         }
     }
 
-    public int getDestinationStaID() {
+    public StationData getDestinationStation() {
         if (destination == null) {
-            return -1;
+            return null;
         } else {
-            return destination.getStaID();
+            return destination.getStationData();
         }
     }
 
     public Direction getDirection() {
-        return trainData.getTimeTable().direction;
+        return trainData.getTimeTable().getDirection();
     }
 
-    public int getTerminalStaID() {
-        return trainData.getTimeTable().getTerminalStaID();
-    }
-
-    public String getTerminalName() {
-        return lineData.getStationName(getTerminalStaID());
+    public StationData getTerminalStation() {
+        return trainData.getTimeTable().getTerminalStation();
     }
 
     // --------------------------------------------------------------------------------
@@ -309,6 +305,6 @@ public class Train {
     // --------------------------------------------------------------------------------
     @Override
     public String toString() {
-        return "列車番号: " + trainData.getTimeTable().trainID;
+        return "列車番号: " + trainData.getTimeTable().getTrainID();
     }
 }

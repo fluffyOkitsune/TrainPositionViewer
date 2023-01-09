@@ -134,7 +134,7 @@ public class ChuoLineRapid extends LineData {
 
     @Override
     public Image getIconImg(TrainData trainData) {
-        String trainID = trainData.getTimeTable().trainID;
+        String trainID = trainData.getTimeTable().getTrainID();
         char alphabet = trainID.charAt(trainID.length() - 1);
         switch (alphabet) {
             case 'B':
@@ -146,7 +146,7 @@ public class ChuoLineRapid extends LineData {
                 break;
         }
 
-        String trainType = trainData.getTimeTable().trainType;
+        String trainType = trainData.getTimeTable().getTrainType();
         switch (trainType) {
             case "快速":
                 return imageIconChuoRapid;
@@ -167,7 +167,7 @@ public class ChuoLineRapid extends LineData {
 
     @Override
     public Color getTypeColor(TrainData trainData) {
-        String trainType = trainData.getTimeTable().trainType;
+        String trainType = trainData.getTimeTable().getTrainType();
         switch (trainType) {
             case "快速":
                 return COLOR_RAPID;

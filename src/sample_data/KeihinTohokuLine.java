@@ -125,8 +125,8 @@ public class KeihinTohokuLine extends LineData {
 
     @Override
     public Image getIconImg(TrainData trainData) {
-        String trainID = trainData.getTimeTable().trainID;
-        String trainType = trainData.getTimeTable().trainType;
+        String trainID = trainData.getTimeTable().getTrainID();
+        String trainType = trainData.getTimeTable().getTrainType();
 
         if (trainID.charAt(trainID.length() - 1) == 'K') {
             // 列車番号の末尾がKの電車は横浜線直通
@@ -153,8 +153,8 @@ public class KeihinTohokuLine extends LineData {
 
     @Override
     public Color getTypeColor(TrainData trainData) {
-        String trainID = trainData.getTimeTable().trainID;
-        String trainType = trainData.getTimeTable().trainType;
+        String trainID = trainData.getTimeTable().getTrainID();
+        String trainType = trainData.getTimeTable().getTrainType();
 
         if (trainID.charAt(trainID.length() - 1) == 'K') {
             // 列車番号の末尾がKの電車は横浜線直通

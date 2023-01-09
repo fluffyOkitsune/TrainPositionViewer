@@ -1,22 +1,25 @@
 package data.time_table;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import java.awt.*;
 
 import data.Time;
+import data.line_data.LineData;
 import data.line_data.LineData.Direction;
 
 // 列車の運行時刻データ
 public class TimeTable {
-    public Direction direction;
+    private Direction direction;
 
-    public String trainID;
-    public String trainType;
-    public String trainName;
-    public String trainNo;
+    private String trainID;
+    private String trainType;
+    private String trainName;
+    private String trainNo;
 
     private TimeData[] timeData;
 
@@ -35,7 +38,7 @@ public class TimeTable {
     // データ作成
     // --------------------------------------------------------------------------------
     // 着駅を追加する。
-    public void setArrived(int staID, String strTime) {
+    public void setArrived(LineData lineData, int staID, String strTime) {
         // IDの駅を列車が通らない場合は時刻データを追加しない
         if (strTime.equals("") || strTime.equals("||")) {
             return;
@@ -53,14 +56,14 @@ public class TimeTable {
 
         // 時刻データオブジェクトが登録されていない場合は新規に作成する
         if (!mapTimeBuf.containsKey(staID)) {
-            mapTimeBuf.put(staID, new TimeData(staID));
+            mapTimeBuf.put(staID, new TimeData(lineData.getStationData(fixStaID(staID, lineData, this.direction))));
         }
 
         mapTimeBuf.get(staID).setArrived(strTime);
     }
 
     // 発駅を追加する。
-    public void setDeparture(int staID, String strTime) {
+    public void setDeparture(LineData lineData, int staID, String strTime) {
         // IDの駅を列車が通らない場合は時刻データを追加しない
         if (strTime.equals("") || strTime.equals("||")) {
             return;
@@ -78,10 +81,18 @@ public class TimeTable {
 
         // 時刻データオブジェクトが登録されていない場合は新規に作成する
         if (!mapTimeBuf.containsKey(staID)) {
-            mapTimeBuf.put(staID, new TimeData(staID));
+            mapTimeBuf.put(staID, new TimeData(lineData.getStationData(fixStaID(staID, lineData, this.direction))));
         }
 
         mapTimeBuf.get(staID).setDeparture(strTime);
+    }
+
+    private int fixStaID(int staID, LineData lineData, Direction direction) {
+        // 上り時刻表は、駅一覧と逆向きの順番に記載されているので、行のIDを駅IDと対応付けるため逆さにする必要がある。
+        if (direction == Direction.INBOUND) {
+            staID = lineData.numStation() - 1 - staID;
+        }
+        return staID;
     }
 
     // --------------------------------------------------------------------------------
@@ -106,10 +117,6 @@ public class TimeTable {
             timeData[i] = mapTimeBuf.get(listStaIDs.get(i));
         }
 
-        for (TimeData t : timeData) {
-            t.fixStaID(numStation, direction);
-        }
-
         // バッファが不要になったのでクリアする
         mapTimeBuf.clear();
 
@@ -131,7 +138,8 @@ public class TimeTable {
             }
 
             Time reqTime = getReqTime(i);
-            Point key = new Point(timeData[i].getStaID(), timeData[i + 1].getStaID());
+            Point key = new Point(timeData[i].getStationData().getStationID(),
+                    timeData[i + 1].getStationData().getStationID());
             Time minReqTime = mapMinReqTime.get(key);
             if (reqTime.sub(minReqTime).compareTo(APPLY_MIN_REQ_TIME_TH) > 0) {
                 // 次駅着時刻がなければ指定する
@@ -176,6 +184,44 @@ public class TimeTable {
     }
 
     // --------------------------------------------------------------------------------
+    // インタフェース
+    // --------------------------------------------------------------------------------
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public String getTrainID() {
+        return trainID;
+    }
+
+    void setTrainID(String trainID) {
+        this.trainID = trainID;
+    }
+
+    public String getTrainType() {
+        return trainType;
+    }
+
+    void setTrainType(String trainType) {
+        this.trainType = trainType;
+    }
+
+    public String getTrainName() {
+        return trainName;
+    }
+
+    void setTrainName(String trainName) {
+        this.trainName = trainName;
+    }
+
+    public String getTrainNo() {
+        return trainNo;
+    }
+
+    void setTrainNo(String trainNo) {
+        this.trainNo = trainNo;
+    }
+
     public TimeData getTimeData(int stationID) {
         return timeData[stationID];
     }
@@ -197,19 +243,17 @@ public class TimeTable {
         return timeData[idx].getArrTime();
     }
 
-    // 停車駅の駅IDを返す
-    public int[] getStopsStaID(){
-        // Stream.map はプリミティブ型が使えないのかもしれない……
-        int[] stopsStaID = new int[this.timeData.length];
-        for(int i = 0; i < stopsStaID.length; i++){
-            stopsStaID[i] = this.timeData[i].getStaID();   
-        }
-        return stopsStaID;
+    // 停車駅の駅データを返す
+    public StationData[] getStopStations() {
+        Stream<StationData> stream = Arrays.stream(this.timeData).map(e -> {
+            return e.getStationData();
+        });
+        return stream.toArray(StationData[]::new);
     }
 
-    // 行先の駅IDを返す
-    public int getTerminalStaID() {
-        return timeData[timeData.length - 1].getStaID();
+    // 行先の駅データを返す
+    public StationData getTerminalStation() {
+        return timeData[timeData.length - 1].getStationData();
     }
 
     // --------------------------------------------------------------------------------

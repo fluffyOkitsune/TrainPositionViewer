@@ -76,7 +76,7 @@ public class NambuLine extends LineData {
 
     @Override
     public Image getIconImg(TrainData trainData) {
-        switch (trainData.getTimeTable().trainType) {
+        switch (trainData.getTimeTable().getTrainType()) {
             case "快速":
                 return imageIconRapid;
             default:
@@ -89,7 +89,7 @@ public class NambuLine extends LineData {
 
     @Override
     public Color getTypeColor(TrainData trainData) {
-        switch (trainData.getTimeTable().trainType) {
+        switch (trainData.getTimeTable().getTrainType()) {
             case "快速":
                 return COLOR_JN_RAPID;
             default:

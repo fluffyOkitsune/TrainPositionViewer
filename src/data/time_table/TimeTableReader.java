@@ -75,7 +75,7 @@ public class TimeTableReader {
         for (int idx = 0; idx < timeTables.length; idx++) {
             // 最初の2要素は行ラベルなので除く。
             timeTables[idx] = new TimeTable(direction);
-            timeTables[idx].trainID = items[idx + 2];
+            timeTables[idx].setTrainID(items[idx + 2]);
         }
     }
 
@@ -93,7 +93,7 @@ public class TimeTableReader {
 
         for (int idx = 0; idx < timeTables.length; idx++) {
             // 最初の2要素は行ラベルなので除く。
-            timeTables[idx].trainType = items[idx + 2];
+            timeTables[idx].setTrainType(items[idx + 2]);
         }
     }
 
@@ -111,7 +111,7 @@ public class TimeTableReader {
 
         for (int idx = 0; idx < timeTables.length; idx++) {
             // 最初の2要素は行ラベルなので除く。
-            timeTables[idx].trainName = items[idx + 2];
+            timeTables[idx].setTrainName(items[idx + 2]);
         }
     }
 
@@ -129,7 +129,7 @@ public class TimeTableReader {
 
         for (int idx = 0; idx < timeTables.length; idx++) {
             // 最初の2要素は行ラベルなので除く。
-            timeTables[idx].trainNo = items[idx + 2];
+            timeTables[idx].setTrainNo(items[idx + 2]);
         }
     }
 
@@ -153,7 +153,7 @@ public class TimeTableReader {
                     }
                     // 着時刻を格納する
                     for (int idx = 0; idx < timeTables.length; idx++) {
-                        timeTables[idx].setArrived(staID, items[idx + 2]);
+                        timeTables[idx].setArrived(lineData, staID, items[idx + 2]);
                     }
                     break;
 
@@ -164,12 +164,12 @@ public class TimeTableReader {
                     }
                     // "発時刻を格納する
                     for (int idx = 0; idx < timeTables.length; idx++) {
-                        timeTables[idx].setDeparture(staID, items[idx + 2]);
+                        timeTables[idx].setDeparture(lineData, staID, items[idx + 2]);
                     }
                     break;
 
-                default: // 着でも初でもない場合は備考欄
-                    // "発時刻を格納する
+                default: 
+                    // 着でも発でもない場合は備考欄
                     for (int idx = 0; idx < timeTables.length; idx++) {
                         timeTables[idx].note = items[idx + 2];
                     }

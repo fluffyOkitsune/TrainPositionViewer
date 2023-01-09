@@ -81,7 +81,7 @@ public class ToeiShinjukuLine extends LineData {
 
     @Override
     public Image getIconImg(TrainData trainData) {
-        String trainID = trainData.getTimeTable().trainID;
+        String trainID = trainData.getTimeTable().getTrainID();
         switch (trainID.charAt(trainID.length() - 1)) {
             case 'K':
                 // 京王線
@@ -97,7 +97,7 @@ public class ToeiShinjukuLine extends LineData {
 
     @Override
     public Color getTypeColor(TrainData trainData) {
-        switch (trainData.getTimeTable().trainType) {
+        switch (trainData.getTimeTable().getTrainType()) {
             case "急行":
                 return COLOR_EXPRESS;
             default:
