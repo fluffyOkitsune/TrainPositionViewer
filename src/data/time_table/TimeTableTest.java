@@ -95,11 +95,11 @@ public class TimeTableTest {
         LineData lineData = new TestLineData();
 
         StationData[] testStationDatas = {
-                new StationData(0, "A", 0.0f),
-                new StationData(1, "B", 0.1f),
-                new StationData(2, "C", 0.2f),
-                new StationData(3, "D", 0.3f),
-                new StationData(4, "E", 0.4f)
+                new StationData(0, lineData, "A", 0.0f),
+                new StationData(1, lineData, "B", 0.1f),
+                new StationData(2, lineData, "C", 0.2f),
+                new StationData(3, lineData, "D", 0.3f),
+                new StationData(4, lineData, "E", 0.4f)
         };
         lineData.setStationData(testStationDatas);
 

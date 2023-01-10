@@ -39,7 +39,7 @@ public abstract class LineData {
 
     public final void importCSV() throws FileNotFoundException {
         // 駅データの入力
-        setStationData(StationData.createStationData(getStationDataCsvPath()));
+        setStationData(StationData.createStationData(this, getStationDataCsvPath()));
 
         // 列車運行データの入力
         TimeTable[] trainData;
@@ -270,6 +270,15 @@ public abstract class LineData {
 
     public StationData getStationData(int staID) {
         return stationData[staID];
+    }
+
+    public StationData getStationData(String name) {
+        for (StationData station : stationData) {
+            if (name.equals(station.getName())) {
+                return station;
+            }
+        }
+        return null;
     }
 
     public float getDistProportion(int staID) {

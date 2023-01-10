@@ -20,14 +20,12 @@ public class TimeTable {
     private String trainType;
     private String trainName;
     private String trainNo;
+    public String note = "";
 
     private TimeData[] timeData;
 
     // 駅の着発時刻バッファ
     private Map<Integer, TimeData> mapTimeBuf;
-
-    // 備考欄
-    public String note = "";
 
     public TimeTable(Direction direction) {
         this.direction = direction;
@@ -121,6 +119,29 @@ public class TimeTable {
         mapTimeBuf.clear();
 
         return this;
+    }
+
+    // --------------------------------------------------------------------------------
+    // 直通運転
+    // --------------------------------------------------------------------------------
+    public TimeTable combine(TimeTable timeTable) {
+        List<TimeData> prev = new ArrayList<>(Arrays.asList(this.timeData));
+        List<TimeData> next = Arrays.asList(timeTable.timeData);
+        prev.addAll(next);
+
+        TimeTable ret = new TimeTable(direction);
+        ret.copyAttrs(this);
+        ret.timeData = prev.toArray(new TimeData[0]);
+        return ret;
+    }
+
+    private void copyAttrs(TimeTable src){
+        direction = src.direction;
+        trainID = src.trainID;
+        trainName = src.trainName;
+        trainNo = src.trainNo;
+        trainType = src.trainType;
+        note = src.note;
     }
 
     // --------------------------------------------------------------------------------
@@ -249,6 +270,11 @@ public class TimeTable {
             return e.getStationData();
         });
         return stream.toArray(StationData[]::new);
+    }
+
+    // 始発駅のデータを返す
+    public StationData getFirstStation() {
+        return timeData[0].getStationData();
     }
 
     // 行先の駅データを返す
