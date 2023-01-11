@@ -135,7 +135,7 @@ public class TimeTable {
         return ret;
     }
 
-    private void copyAttrs(TimeTable src){
+    private void copyAttrs(TimeTable src) {
         direction = src.direction;
         trainID = src.trainID;
         trainName = src.trainName;
@@ -274,12 +274,20 @@ public class TimeTable {
 
     // 始発駅のデータを返す
     public StationData getFirstStation() {
-        return timeData[0].getStationData();
+        if (timeData == null) {
+            return null;
+        } else {
+            return timeData[0].getStationData();
+        }
     }
 
     // 行先の駅データを返す
     public StationData getTerminalStation() {
-        return timeData[timeData.length - 1].getStationData();
+        if (timeData == null) {
+            return null;
+        } else {
+            return timeData[timeData.length - 1].getStationData();
+        }
     }
 
     // --------------------------------------------------------------------------------

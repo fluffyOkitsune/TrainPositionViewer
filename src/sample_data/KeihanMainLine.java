@@ -111,6 +111,7 @@ public class KeihanMainLine extends LineData {
     public Image getIconImg(TrainData trainData) {
         switch (trainData.getTimeTable().getTrainType()) {
             case "ﾗｲﾅｰ":
+                return imageIconLiner;
             case "快特":
                 return imageIconRapidLtd;
             case "特急":

@@ -5,15 +5,14 @@ import data.line_data.RegionData;
 import data.time_table.StationData;
 
 public class KeioCorp extends RegionData {
-    LineData[] lineData;
-
     public KeioCorp() {
-        lineData = new LineData[5];
-        lineData[0] = new KeioLine();
-        lineData[1] = new KeioNewLine();
-        lineData[2] = new KeioSagamiharaLine();
-        lineData[3] = new KeioTakaoLine();
-        lineData[4] = new ToeiShinjukuLine();
+        LineData[] lineData = {
+                new KeioLine(),
+                new KeioNewLine(),
+                new KeioSagamiharaLine(),
+                new KeioTakaoLine(),
+                new ToeiShinjukuLine()
+        };
 
         setLineData(lineData);
     }

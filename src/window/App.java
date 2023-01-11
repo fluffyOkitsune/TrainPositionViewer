@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import data.Time;
+import data.line_data.IndependentLineRegion;
 import data.line_data.LineData;
 import data.line_data.RegionData;
 import sample_data.*;
@@ -12,7 +13,6 @@ public class App implements ChangeListener {
     private MainWindow win;
 
     public RegionData regionData;
-    public LineData[] lineData;
 
     public static void main(String[] args) {
         App app = new App();
@@ -25,80 +25,70 @@ public class App implements ChangeListener {
     App() {
         // 東海道新幹線
         if (false) {
-            lineData = new LineData[1];
-            lineData[0] = new TokaidoShinkansen();
+            regionData = new IndependentLineRegion(new TokaidoShinkansen());
         }
 
         // 山手線 (2018[平日])
         if (false) {
-            lineData = new LineData[1];
-            lineData[0] = new YamanoteLine();
+            regionData = new IndependentLineRegion(new YamanoteLine());
         }
 
         // 中央線 (2018[平日])
-        if (false) {
-            lineData = new LineData[3];
-            lineData[0] = new ChuoLineRapid();
-            lineData[1] = new OumeLine();
-            lineData[2] = new ChuoSobuLine();
+        if (true) {
+            regionData = new JREChuoLine();
         }
 
         // 京浜東北線 (2018[平日])
         if (false) {
-            lineData = new LineData[1];
-            lineData[0] = new KeihinTohokuLine();
+            regionData = new IndependentLineRegion(new KeihinTohokuLine());
         }
 
         // 南武線 (2018[平日])
         if (false) {
-            lineData = new LineData[1];
-            lineData[0] = new NambuLine();
+            regionData = new IndependentLineRegion(new NambuLine());
         }
 
         // 東海道線（東京 - 熱海） (2018[平日])
         if (false) {
-            lineData = new LineData[1];
-            lineData[0] = new TokaidoLine();
+            regionData = new IndependentLineRegion(new TokaidoLine());
         }
 
         // 東急電鉄線 (2018[平日])
         if (false) {
-            lineData = new LineData[6];
-            lineData[0] = new TokyuIkegamiLine();
-            lineData[1] = new TokyuTamagawaLine();
-            lineData[2] = new TokyuDenentoshiLine();
-            lineData[3] = new TokyuOimachiLine();
-            lineData[4] = new TokyuMeguroLine();
-            lineData[5] = new TokyuToyokoLine();
+            LineData[] lineData = {
+                    new TokyuIkegamiLine(),
+                    new TokyuTamagawaLine(),
+                    new TokyuDenentoshiLine(),
+                    new TokyuOimachiLine(),
+                    new TokyuMeguroLine(),
+                    new TokyuToyokoLine()
+            };
+            regionData = new IndependentLineRegion(lineData);
         }
 
         // 京王線 (2018[平日])
-        if (true) {
+        if (false) {
             regionData = new KeioCorp();
         }
 
         // 久留里線 (2018[平日])
         if (false) {
-            lineData = new LineData[1];
-            lineData[0] = new KururiLine();
+            regionData = new IndependentLineRegion(new KururiLine());
         }
 
         // 京阪本線 (2017[平日])
         if (false) {
-            lineData = new LineData[1];
-            lineData[0] = new KeihanMainLine();
+            regionData = new IndependentLineRegion(new KeihanMainLine());
         }
 
         // 奈良線 (2018[平日])
         if (false) {
-            lineData = new LineData[1];
-            lineData[0] = new NaraLine();
+            regionData = new IndependentLineRegion(new NaraLine());
         }
 
         // 宗谷本線 (2018[平日])
         if (false) {
-            lineData = new LineData[1];
-            lineData[0] = new SoyaLine();
+            regionData = new IndependentLineRegion(new SoyaLine());
         }
 
         regionData.init();

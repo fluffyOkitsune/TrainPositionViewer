@@ -17,5 +17,4 @@ public class ArcPath extends EasyPathPoint {
             return new Point(x, y);
         });
     }
-
 }
