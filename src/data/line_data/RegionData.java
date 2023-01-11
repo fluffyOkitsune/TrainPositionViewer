@@ -93,8 +93,8 @@ public abstract class RegionData {
                     for (Train tTo : train) {
                         // 直通運転の境界駅が始発の列車を検索する
                         if (tTo.getFirstStation() == td.stationTo) {
-                            if (tFrom.trainData.getTimeTable().getTrainID()
-                                    .equals(tTo.trainData.getTimeTable().getTrainID())) {
+                            // 列車が同じ列車であれば時刻表を連結する。
+                            if (isSameTrain(tFrom, tTo)) {
                                 tFrom.combine(tTo);
                                 lTrain.remove(tTo);
                             }
@@ -104,6 +104,13 @@ public abstract class RegionData {
             }
         }
         train = lTrain.toArray(new Train[0]);
+    }
+
+    // 同じ列車と認識される条件
+    protected boolean isSameTrain(Train train1, Train train2){
+        String trainID1 = train1.trainData.getTimeTable().getTrainID();
+        String trainID2 = train2.trainData.getTimeTable().getTrainID();
+        return trainID1.equals(trainID2);
     }
 
     // --------------------------------------------------------------------------------
