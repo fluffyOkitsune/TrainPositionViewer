@@ -14,6 +14,8 @@ import data.line_data.LineData.Direction;
 
 // 列車の運行時刻データ
 public class TimeTable {
+    private static final Time DETOUR = new Time(0, 0, 0);
+
     private Direction direction;
 
     private String trainID;
@@ -37,52 +39,62 @@ public class TimeTable {
     // --------------------------------------------------------------------------------
     // 着駅を追加する。
     public void setArrived(LineData lineData, int staID, String strTime) {
-        // IDの駅を列車が通らない場合は時刻データを追加しない
-        if (strTime.equals("") || strTime.equals("||")) {
+        if (strTime.equals("")) {
             return;
-        }
+        } else if (strTime.equals("||")) {
+            // IDの駅を列車が通らない場合
+            if (!mapTimeBuf.containsKey(staID)) {
+                mapTimeBuf.put(staID, new TimeData(lineData.getStationData(fixStaID(staID, lineData, this.direction))));
+                mapTimeBuf.get(staID).setArrivedTime(TimeTable.DETOUR);
+            }
+        } else {
+            // 時間なし通過駅は時刻データを作成しない
+            if (strTime.equals(" ﾚ") || strTime.equals("レ")) {
+                return;
+            }
 
-        // 時間なし通過駅は時刻データを作成しない
-        if (strTime.equals(" ﾚ") || strTime.equals("レ")) {
-            return;
-        }
+            // 時間あり通過駅は停車扱いとする
+            if (strTime.charAt(strTime.length() - 1) == '?') {
+                strTime = strTime.substring(0, strTime.length() - 1);
+            }
 
-        // 時間あり通過駅は停車扱いとする
-        if (strTime.charAt(strTime.length() - 1) == '?') {
-            strTime = strTime.substring(0, strTime.length() - 1);
-        }
+            // 時刻データオブジェクトが登録されていない場合は新規に作成する
+            if (!mapTimeBuf.containsKey(staID)) {
+                mapTimeBuf.put(staID, new TimeData(lineData.getStationData(fixStaID(staID, lineData, this.direction))));
+            }
 
-        // 時刻データオブジェクトが登録されていない場合は新規に作成する
-        if (!mapTimeBuf.containsKey(staID)) {
-            mapTimeBuf.put(staID, new TimeData(lineData.getStationData(fixStaID(staID, lineData, this.direction))));
+            mapTimeBuf.get(staID).setArrived(strTime);
         }
-
-        mapTimeBuf.get(staID).setArrived(strTime);
     }
 
     // 発駅を追加する。
     public void setDeparture(LineData lineData, int staID, String strTime) {
-        // IDの駅を列車が通らない場合は時刻データを追加しない
-        if (strTime.equals("") || strTime.equals("||")) {
+        if (strTime.equals("")) {
             return;
-        }
+        } else if (strTime.equals("||")) {
+            // IDの駅を列車が通らない場合
+            if (!mapTimeBuf.containsKey(staID)) {
+                mapTimeBuf.put(staID, new TimeData(lineData.getStationData(fixStaID(staID, lineData, this.direction))));
+                mapTimeBuf.get(staID).setDepartureTime(TimeTable.DETOUR);
+            }
+        } else {
+            // 時間なし通過駅は時刻データを作成しない
+            if (strTime.equals(" ﾚ") || strTime.equals("レ")) {
+                return;
+            }
 
-        // 時間なし通過駅は時刻データを作成しない
-        if (strTime.equals(" ﾚ") || strTime.equals("レ")) {
-            return;
-        }
+            // 時間あり通過駅は停車扱いとする
+            if (strTime.charAt(strTime.length() - 1) == '?') {
+                strTime = strTime.substring(0, strTime.length() - 1);
+            }
 
-        // 時間あり通過駅は停車扱いとする
-        if (strTime.charAt(strTime.length() - 1) == '?') {
-            strTime = strTime.substring(0, strTime.length() - 1);
-        }
+            // 時刻データオブジェクトが登録されていない場合は新規に作成する
+            if (!mapTimeBuf.containsKey(staID)) {
+                mapTimeBuf.put(staID, new TimeData(lineData.getStationData(fixStaID(staID, lineData, this.direction))));
+            }
 
-        // 時刻データオブジェクトが登録されていない場合は新規に作成する
-        if (!mapTimeBuf.containsKey(staID)) {
-            mapTimeBuf.put(staID, new TimeData(lineData.getStationData(fixStaID(staID, lineData, this.direction))));
+            mapTimeBuf.get(staID).setDeparture(strTime);
         }
-
-        mapTimeBuf.get(staID).setDeparture(strTime);
     }
 
     private int fixStaID(int staID, LineData lineData, Direction direction) {
@@ -97,10 +109,10 @@ public class TimeTable {
     // データ整理
     // --------------------------------------------------------------------------------
     // バッファの一時データをインスタンスに書き込む
-    public TimeTable packData(int numStation, Direction direction) {
+    public void packData() {
         // 空の場合はすでに書き込み済み
         if (mapTimeBuf.isEmpty()) {
-            return this;
+            return;
         }
 
         // キー（駅ID）をソートする
@@ -117,8 +129,39 @@ public class TimeTable {
 
         // バッファが不要になったのでクリアする
         mapTimeBuf.clear();
+    }
 
-        return this;
+    // 迂回データで分離する
+    public TimeTable[] separateDetour() {
+        List<TimeTable> lTimeTable = new ArrayList<>();
+        List<TimeData> lTimeData = new ArrayList<>();
+
+        for (TimeData td : timeData) {
+            if (td.getArrTime() == TimeTable.DETOUR && td.getDepTime() == TimeTable.DETOUR) {
+                if (lTimeData.isEmpty()) {
+                    continue;
+                } else {
+                    // || を読んだらその区間は他線に迂回しているので、その前後は別の列車として分割する。
+                    if (!lTimeData.isEmpty()) {
+                        TimeTable newTimeTable = this.clone();
+                        newTimeTable.timeData = lTimeData.toArray(new TimeData[0]);
+                        lTimeTable.add(newTimeTable);
+                        lTimeData.clear();
+                    }
+                }
+            } else {
+                lTimeData.add(td);
+            }
+        }
+
+        if (!lTimeData.isEmpty()) {
+            TimeTable newTimeTable = this.clone();
+            newTimeTable.timeData = lTimeData.toArray(new TimeData[0]);
+            lTimeTable.add(newTimeTable);
+            lTimeData.clear();
+        }
+
+        return lTimeTable.toArray(new TimeTable[0]);
     }
 
     // --------------------------------------------------------------------------------
@@ -130,18 +173,9 @@ public class TimeTable {
         prev.addAll(next);
 
         TimeTable ret = new TimeTable(direction);
-        ret.copyAttrs(this);
+        ret = this.clone();
         ret.timeData = prev.toArray(new TimeData[0]);
         return ret;
-    }
-
-    private void copyAttrs(TimeTable src) {
-        direction = src.direction;
-        trainID = src.trainID;
-        trainName = src.trainName;
-        trainNo = src.trainNo;
-        trainType = src.trainType;
-        note = src.note;
     }
 
     // --------------------------------------------------------------------------------
@@ -243,6 +277,14 @@ public class TimeTable {
         this.trainNo = trainNo;
     }
 
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
     public TimeData getTimeData(int stationID) {
         return timeData[stationID];
     }
@@ -290,6 +332,10 @@ public class TimeTable {
         }
     }
 
+    public TimeData getMapTimeData(int staID) {
+        return mapTimeBuf.get(staID);
+    }
+
     // --------------------------------------------------------------------------------
     @Override
     public String toString() {
@@ -297,8 +343,16 @@ public class TimeTable {
                 + trainNo + ", timeTable=" + mapTimeBuf + "]";
     }
 
-    public TimeData getMapTimeData(int staID) {
-        return mapTimeBuf.get(staID);
+    @Override
+    public TimeTable clone() {
+        TimeTable res = new TimeTable(direction);
+        res.direction = direction;
+        res.trainID = trainID;
+        res.trainName = trainName;
+        res.trainNo = trainNo;
+        res.trainType = trainType;
+        res.note = note;
+        res.timeData = timeData;
+        return res;
     }
-
 }

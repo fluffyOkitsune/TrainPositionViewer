@@ -34,7 +34,7 @@ public class TimeTableTest {
         // E:終着駅
         tt.setArrived(lineData, 4, "1250");
 
-        tt.packData(5, Direction.OUTBOUND);
+        tt.packData();
 
         return tt;
     }
