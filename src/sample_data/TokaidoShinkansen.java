@@ -87,7 +87,7 @@ public class TokaidoShinkansen extends LineData {
 
     @Override
     public Image getIconImg(TrainData trainData) {
-        String trainName = trainData.getTimeTable().trainName;
+        String trainName = trainData.getTimeTable().getTrainName();
         switch (trainName) {
             case "のぞみ":
                 return imageIconNozomi;
@@ -100,7 +100,7 @@ public class TokaidoShinkansen extends LineData {
 
     @Override
     public Color getTypeColor(TrainData trainData) {
-        String trainName = trainData.getTimeTable().trainName;
+        String trainName = trainData.getTimeTable().getTrainName();
         switch (trainName) {
             case "のぞみ":
                 return COLOR_NOZOMI;

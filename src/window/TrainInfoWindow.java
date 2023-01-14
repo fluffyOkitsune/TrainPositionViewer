@@ -132,14 +132,14 @@ public class TrainInfoWindow {
 
     private String generateTrainNameStr(Train train) {
         String str = "";
-        String trainName = train.trainData.getTimeTable().trainName;
+        String trainName = train.trainData.getTimeTable().getTrainName();
         if (trainName.isEmpty()) {
             return str;
         }
         str += "\n" + trainName;
 
         // 号
-        String trainNo = train.trainData.getTimeTable().trainNo;
+        String trainNo = train.trainData.getTimeTable().getTrainNo();
         if (trainNo.isEmpty()) {
             return str;
         }
@@ -160,12 +160,12 @@ public class TrainInfoWindow {
             this.rect.y = train.getRect().y - train.getRect().height / 2;
 
             // 表示する情報
-            String trainID = selectedTrain.trainData.getTimeTable().trainID;
-            String trainType = selectedTrain.trainData.getTimeTable().trainType;
+            String trainID = selectedTrain.trainData.getTimeTable().getTrainID();
+            String trainType = selectedTrain.trainData.getTimeTable().getTrainType();
 
             String trainMainInfo = String.format("%s [%s]", trainID, trainType);
             String trainName = generateTrainNameStr(selectedTrain);
-            String destination = selectedTrain.getTerminalName() + "行";
+            String destination = selectedTrain.getTerminalStation().getName() + "行";
             String note = "";
             if (selectedTrain.trainData.isExtra()) {
                 note = "◆《運転日注意》";

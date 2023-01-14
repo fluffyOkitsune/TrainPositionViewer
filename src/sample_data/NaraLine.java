@@ -239,7 +239,7 @@ public class NaraLine extends LineData {
 
         @Override
         public Image getIconImg(TrainData trainData) {
-                String trainType = trainData.getTimeTable().trainType;
+                String trainType = trainData.getTimeTable().getTrainType();
                 switch (trainType) {
                         case "みやこ":
                                 return imageIconMiyakojiRapid;
@@ -259,7 +259,7 @@ public class NaraLine extends LineData {
 
         @Override
         public Color getTypeColor(TrainData trainData) {
-                String trainType = trainData.getTimeTable().trainType;
+                String trainType = trainData.getTimeTable().getTrainType();
                 switch (trainType) {
                         case "みやこ":
                                 return COLOR_MIYAKOJI_RAPID;

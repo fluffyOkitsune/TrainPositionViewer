@@ -39,7 +39,7 @@ public abstract class LineData {
 
     public final void importCSV() throws FileNotFoundException {
         // 駅データの入力
-        setStationData(StationData.createStationData(getStationDataCsvPath()));
+        setStationData(StationData.createStationData(this, getStationDataCsvPath()));
 
         // 列車運行データの入力
         TimeTable[] trainData;
@@ -80,8 +80,8 @@ public abstract class LineData {
     // --------------------------------------------------------------------------------
     private void calcMinRequiedTime(TimeTable timeTable) {
         for (int idx = 0; idx < timeTable.getTimeDataSize() - 1; idx++) {
-            int depStaID = timeTable.getTimeData(idx).getStaID();
-            int destStaID = timeTable.getTimeData(idx + 1).getStaID();
+            int depStaID = timeTable.getTimeData(idx).getStationData().getStationID();
+            int destStaID = timeTable.getTimeData(idx + 1).getStationData().getStationID();
             Time reqTime = timeTable.getReqTime(idx);
             setMinReqTime(depStaID, destStaID, reqTime);
         }
@@ -222,7 +222,7 @@ public abstract class LineData {
     public void drawTrainID(Graphics g) {
         for (Train t : train) {
             if (t.onDuty) {
-                String trainID = t.trainData.getTimeTable().trainID;
+                String trainID = t.trainData.getTimeTable().getTrainID();
                 Rectangle rect = t.getRect();
                 Point pos = new Point(rect.getLocation().x + rect.width / 2, rect.getLocation().y + rect.height / 2);
 
@@ -272,12 +272,17 @@ public abstract class LineData {
         return stationData[staID];
     }
 
-    public float getDistProportion(int staID) {
-        return stationData[staID].getDistProportion();
+    public StationData getStationData(String name) {
+        for (StationData station : stationData) {
+            if (name.equals(station.getName())) {
+                return station;
+            }
+        }
+        return null;
     }
 
-    public String getStationName(int staID) {
-        return stationData[staID].getName();
+    public float getDistProportion(int staID) {
+        return stationData[staID].getDistProportion();
     }
 
     public final int numStation() {

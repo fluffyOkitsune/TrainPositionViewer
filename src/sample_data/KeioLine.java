@@ -97,7 +97,7 @@ public class KeioLine extends LineData {
 
     @Override
     public Image getIconImg(TrainData trainData) {
-        String trainID = trainData.getTimeTable().trainID;
+        String trainID = trainData.getTimeTable().getTrainID();
         switch (trainID.substring(0, 2)) {
             case "18": // [急行]橋本行
             case "21": // [快速]高尾山口行
@@ -111,7 +111,7 @@ public class KeioLine extends LineData {
                 // 京王線
         }
 
-        switch (trainData.getTimeTable().trainType) {
+        switch (trainData.getTimeTable().getTrainType()) {
             case "ﾗｲﾅｰ":
                 return imageIconLiner;
             case "特急":
@@ -137,7 +137,7 @@ public class KeioLine extends LineData {
 
     @Override
     public Color getTypeColor(TrainData trainData) {
-        switch (trainData.getTimeTable().trainType) {
+        switch (trainData.getTimeTable().getTrainType()) {
             case "ﾗｲﾅｰ":
                 return COLOR_LINER;
             case "特急":
