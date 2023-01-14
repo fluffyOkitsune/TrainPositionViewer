@@ -37,8 +37,13 @@ public class TimeTableReader {
         Vector<TimeTable> buf = new Vector<>();
         for (TimeTable timeTable : timeTableReader.lTimeTables) {
             timeTable.packData();
-            for (TimeTable newTimeTable : timeTable.separateDetour()) {
-                buf.add(newTimeTable);
+            TimeTable[] separatedTimeTable = timeTable.separateDetour();
+            if (separatedTimeTable == null) {
+                continue;
+            } else {
+                for (TimeTable newTimeTable : separatedTimeTable) {
+                    buf.add(newTimeTable);
+                }
             }
         }
         timeTableReader.lTimeTables.clear();
@@ -170,7 +175,7 @@ public class TimeTableReader {
         while (csvScanner.hasNext()) {
             String line = csvScanner.nextLine();
             String[] items = line.split(",", -1);
-            
+
             // 駅名を記憶する
             String staName = items[0];
             // 発着

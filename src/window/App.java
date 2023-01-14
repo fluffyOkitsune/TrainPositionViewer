@@ -34,7 +34,7 @@ public class App implements ChangeListener {
         }
 
         // 中央線 (2018[平日])
-        if (true) {
+        if (false) {
             regionData = new JREChuoLine();
         }
 
@@ -51,6 +51,11 @@ public class App implements ChangeListener {
         // 東海道線（東京 - 熱海） (2018[平日])
         if (false) {
             regionData = new IndependentLineRegion(new TokaidoLine());
+        }
+
+        // 東海道線（東京 - 名古屋） (1968)
+        if (true) {
+            regionData = new IndependentLineRegion(new JNR_TokaidoLine());
         }
 
         // 東急電鉄線 (2018[平日])

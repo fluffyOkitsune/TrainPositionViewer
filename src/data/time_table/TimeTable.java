@@ -133,6 +133,10 @@ public class TimeTable {
 
     // 迂回データで分離する
     public TimeTable[] separateDetour() {
+        if(timeData == null){
+            return null;
+        }
+
         List<TimeTable> lTimeTable = new ArrayList<>();
         List<TimeData> lTimeData = new ArrayList<>();
 
