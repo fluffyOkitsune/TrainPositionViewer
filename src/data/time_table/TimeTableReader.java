@@ -2,14 +2,17 @@ package data.time_table;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
+import java.util.Vector;
 
 import data.line_data.LineData;
 import data.line_data.LineData.Direction;
 
 public class TimeTableReader {
     Scanner csvScanner;
-    TimeTable[] timeTables = null;
+    ArrayList<TimeTable> lTimeTables;
 
     private static final int NUM_HEADER_LINE = 4;
     private static final int NUM_EMPTY_LINE = 1;
@@ -31,11 +34,26 @@ public class TimeTableReader {
 
         timeTableReader.close();
 
-        return timeTableReader.timeTables;
+        Vector<TimeTable> buf = new Vector<>();
+        for (TimeTable timeTable : timeTableReader.lTimeTables) {
+            timeTable.packData();
+            TimeTable[] separatedTimeTable = timeTable.separateDetour();
+            if (separatedTimeTable == null) {
+                continue;
+            } else {
+                for (TimeTable newTimeTable : separatedTimeTable) {
+                    buf.add(newTimeTable);
+                }
+            }
+        }
+        timeTableReader.lTimeTables.clear();
+
+        return buf.toArray(new TimeTable[0]);
     }
 
     public TimeTableReader(String timeTableCSVPath) throws FileNotFoundException {
         csvScanner = new Scanner(new File(timeTableCSVPath), "UTF-8");
+        lTimeTables = new ArrayList<>();
     }
 
     public void close() {
@@ -45,6 +63,8 @@ public class TimeTableReader {
     // --------------------------------------------------------------------------------
     // Readする項目
     // --------------------------------------------------------------------------------
+    private static final int NUM_HEADER_COL = 2;
+
     private void skipLines(int numLineSkip) {
         // ヘッダー部分は読み飛ばすだけ
         for (int i = 0; i < numLineSkip; i++) {
@@ -64,18 +84,17 @@ public class TimeTableReader {
         final String line = csvScanner.nextLine();
         String[] items = line.split(",", -1);
 
-        int numOperations = line.split(",", -1).length - 2;
-        timeTables = new TimeTable[numOperations];
-
-        // 列車番号
         if (!items[0].equals("列車番号")) {
             throw new RuntimeException("列車番号でない行 : " + items[0]);
         }
 
-        for (int idx = 0; idx < timeTables.length; idx++) {
-            // 最初の2要素は行ラベルなので除く。
-            timeTables[idx] = new TimeTable(direction);
-            timeTables[idx].trainID = items[idx + 2];
+        // 駅名と発着を除去する
+        items = Arrays.copyOfRange(items, NUM_HEADER_COL, items.length);
+
+        for (String item : items) {
+            TimeTable timeTable = new TimeTable(direction);
+            timeTable.setTrainID(item);
+            lTimeTables.add(timeTable);
         }
     }
 
@@ -88,12 +107,17 @@ public class TimeTableReader {
         final String line = csvScanner.nextLine();
         String[] items = line.split(",", -1);
 
-        if (!items[0].equals("列車種別"))
+        if (!items[0].equals("列車種別")) {
             throw new RuntimeException("列車種別でない行 : " + items[0]);
+        }
 
-        for (int idx = 0; idx < timeTables.length; idx++) {
-            // 最初の2要素は行ラベルなので除く。
-            timeTables[idx].trainType = items[idx + 2];
+        // 駅名と発着を除去する
+        items = Arrays.copyOfRange(items, NUM_HEADER_COL, items.length);
+
+        int idx = 0;
+        for (TimeTable timeTable : lTimeTables) {
+            timeTable.setTrainType(items[idx]);
+            idx++;
         }
     }
 
@@ -109,9 +133,13 @@ public class TimeTableReader {
         if (!items[0].equals("列車名"))
             throw new RuntimeException("列車名でない行 : " + items[0]);
 
-        for (int idx = 0; idx < timeTables.length; idx++) {
-            // 最初の2要素は行ラベルなので除く。
-            timeTables[idx].trainName = items[idx + 2];
+        // 駅名と発着を除去する
+        items = Arrays.copyOfRange(items, NUM_HEADER_COL, items.length);
+
+        int idx = 0;
+        for (TimeTable timeTable : lTimeTables) {
+            timeTable.setTrainName(items[idx]);
+            idx++;
         }
     }
 
@@ -127,9 +155,13 @@ public class TimeTableReader {
         if (!items[0].equals("号数"))
             throw new RuntimeException("号数でない行 : " + items[0]);
 
-        for (int idx = 0; idx < timeTables.length; idx++) {
-            // 最初の2要素は行ラベルなので除く。
-            timeTables[idx].trainNo = items[idx + 2];
+        // 駅名と発着を除去する
+        items = Arrays.copyOfRange(items, NUM_HEADER_COL, items.length);
+
+        int idx = 0;
+        for (TimeTable timeTable : lTimeTables) {
+            timeTable.setTrainNo(items[idx]);
+            idx++;
         }
     }
 
@@ -143,17 +175,26 @@ public class TimeTableReader {
         while (csvScanner.hasNext()) {
             String line = csvScanner.nextLine();
             String[] items = line.split(",", -1);
-            String staName = items[0];
 
-            switch (items[1]) {
+            // 駅名を記憶する
+            String staName = items[0];
+            // 発着
+            String depArr = items[1];
+
+            // 駅名と発着を除去する
+            items = Arrays.copyOfRange(items, NUM_HEADER_COL, items.length);
+
+            int idx = 0;
+            switch (depArr) {
                 case "着":
                     // 駅IDをインクリメント
                     if (!prevStaName.isEmpty()) {
                         staID++;
                     }
                     // 着時刻を格納する
-                    for (int idx = 0; idx < timeTables.length; idx++) {
-                        timeTables[idx].setArrived(staID, items[idx + 2]);
+                    for (TimeTable timeTable : lTimeTables) {
+                        timeTable.setArrived(lineData, staID, items[idx]);
+                        idx++;
                     }
                     break;
 
@@ -163,23 +204,21 @@ public class TimeTableReader {
                         staID++;
                     }
                     // "発時刻を格納する
-                    for (int idx = 0; idx < timeTables.length; idx++) {
-                        timeTables[idx].setDeparture(staID, items[idx + 2]);
+                    for (TimeTable timeTable : lTimeTables) {
+                        timeTable.setDeparture(lineData, staID, items[idx]);
+                        idx++;
                     }
                     break;
 
-                default: // 着でも初でもない場合は備考欄
-                    // "発時刻を格納する
-                    for (int idx = 0; idx < timeTables.length; idx++) {
-                        timeTables[idx].note = items[idx + 2];
+                default:
+                    // 着でも発でもない場合は備考欄
+                    for (TimeTable timeTable : lTimeTables) {
+                        timeTable.setNote(items[idx]);
+                        idx++;
                     }
                     break;
             }
             prevStaName = staName;
-        }
-
-        for (TimeTable tt : timeTables) {
-            tt.packData(lineData.numStation(), direction);
         }
     }
 }

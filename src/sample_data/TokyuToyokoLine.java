@@ -110,7 +110,7 @@ public class TokyuToyokoLine extends LineData {
 
     @Override
     public Image getIconImg(TrainData trainData) {
-        String trainType = trainData.getTimeTable().trainType;
+        String trainType = trainData.getTimeTable().getTrainType();
         switch (trainType) {
             case "特急":
                 return imageIconLtd;
@@ -125,7 +125,7 @@ public class TokyuToyokoLine extends LineData {
 
     @Override
     public Color getTypeColor(TrainData trainData) {
-        switch (trainData.getTimeTable().trainType) {
+        switch (trainData.getTimeTable().getTrainType()) {
             case "特急":
                 return COLOR_LTD;
             case "通特":

@@ -114,18 +114,18 @@ public class Train {
     }
 
     // 駅に停車している場合
-    private boolean stoppingAtStation(Time currentTime, int staID) {
-        if (staID < 0) {
+    private boolean stoppingAtStation(Time currentTime, int stopID) {
+        if (stopID < 0) {
             return false;
         }
-        if (staID >= trainData.getTimeTable().getTimeDataSize()) {
+        if (stopID >= trainData.getTimeTable().getTimeDataSize()) {
             return false;
         }
 
-        if (currentTime.compareTo(trainData.getTimeTable().getArrTime(staID)) >= 0
-                && currentTime.compareTo(trainData.getTimeTable().getDepTime(staID)) < 0) {
-            departed = trainData.getTimeTable().getTimeData(staID);
-            destination = trainData.getTimeTable().getTimeData(staID);
+        if (currentTime.compareTo(trainData.getTimeTable().getArrTime(stopID)) >= 0
+                && currentTime.compareTo(trainData.getTimeTable().getDepTime(stopID)) < 0) {
+            departed = trainData.getTimeTable().getTimeData(stopID);
+            destination = trainData.getTimeTable().getTimeData(stopID);
             requiredTime = Time.ZERO;
             onDuty = true;
 
@@ -136,21 +136,24 @@ public class Train {
     }
 
     // 駅間を走行している場合
-    private boolean locomotingBetweenStations(Time currentTime, int staID) {
-        if (staID < 0) {
+    private boolean locomotingBetweenStations(Time currentTime, int stopID) {
+        if (stopID < 0) {
             return false;
         }
-        if (staID >= trainData.getTimeTable().getTimeDataSize() - 1) {
+        if (stopID >= trainData.getTimeTable().getTimeDataSize() - 1) {
             return false;
         }
 
-        if (currentTime.compareTo(trainData.getTimeTable().getDepTime(staID)) >= 0
-                && currentTime.compareTo(trainData.getTimeTable().getArrTime(staID + 1)) < 0) {
-            departed = trainData.getTimeTable().getTimeData(staID);
-            destination = trainData.getTimeTable().getTimeData(staID + 1);
-            requiredTime = trainData.getTimeTable().getArrTime(staID + 1)
-                    .sub(trainData.getTimeTable().getDepTime(staID));
-            onDuty = true;
+        Time departure = trainData.getTimeTable().getDepTime(stopID);
+        Time arivered = trainData.getTimeTable().getArrTime(stopID + 1);
+        if (currentTime.compareTo(departure) >= 0 && currentTime.compareTo(arivered) < 0) {
+            this.departed = trainData.getTimeTable().getTimeData(stopID);
+            this.destination = trainData.getTimeTable().getTimeData(stopID + 1);
+
+            this.requiredTime = trainData.getTimeTable().getArrTime(stopID + 1)
+                    .sub(trainData.getTimeTable().getDepTime(stopID));
+
+            this.onDuty = true;
 
             return true;
         } else {
@@ -170,21 +173,18 @@ public class Train {
     // 現在時刻の列車位置
     // --------------------------------------------------------------------------------
     private float calcPos(Time currentTime) {
-        int depStaID = getDepartedStaID();
-        int dstStaID = getDestinationStaID();
-
-        StationData[] stationData = lineData.getStationData();
         float trainPosCurr;
 
         if (departed.getArrTime() == destination.getDepTime()) {
             // 駅に停車中は出発駅と同じ位置
-            trainPosCurr = stationData[depStaID].getDistProportion();
+            trainPosCurr = getDepartedStation().getDistProportion();
+
         } else {
             int secTimeElapsed = currentTime.sub(departed.getDepTime()).convertToSec();
             int secRequiredTime = this.requiredTime.convertToSec();
 
-            float trainPosDep = stationData[depStaID].getDistProportion();
-            float trainPosDst = stationData[dstStaID].getDistProportion();
+            float trainPosDep = getDepartedStation().getDistProportion();
+            float trainPosDst = getDestinationStation().getDistProportion();
 
             // 秒による駅間位置の補正を加えた列車位置を計算する
             if (secRequiredTime > 0) {
@@ -206,33 +206,43 @@ public class Train {
         return trainPosCurr;
     }
 
-    // --------------------------------------------------------------------------------
-    public int getDepartedStaID() {
-        if (departed == null) {
-            return -1;
+    // 列車が駅をすでに過ぎた後か？
+    public boolean hasPassedStation(StationData stationData) {
+        // 上りの場合はstaIDが小さくなる方向に列車が進むことになる。
+        if (this.getDirection() == Direction.OUTBOUND) {
+            return stationData.getStationID() > this.getDepartedStation().getStationID();
         } else {
-            return departed.getStaID();
+            return stationData.getStationID() < this.getDepartedStation().getStationID();
         }
     }
 
-    public int getDestinationStaID() {
-        if (destination == null) {
-            return -1;
+    // --------------------------------------------------------------------------------
+    public StationData getDepartedStation() {
+        if (departed == null) {
+            return null;
         } else {
-            return destination.getStaID();
+            return departed.getStationData();
+        }
+    }
+
+    public StationData getDestinationStation() {
+        if (destination == null) {
+            return null;
+        } else {
+            return destination.getStationData();
         }
     }
 
     public Direction getDirection() {
-        return trainData.getTimeTable().direction;
+        return trainData.getTimeTable().getDirection();
     }
 
-    public int getTerminalStaID() {
-        return trainData.getTimeTable().getTerminalStaID();
+    public StationData getFirstStation() {
+        return trainData.getTimeTable().getFirstStation();
     }
 
-    public String getTerminalName() {
-        return lineData.getStationName(getTerminalStaID());
+    public StationData getTerminalStation() {
+        return trainData.getTimeTable().getTerminalStation();
     }
 
     // --------------------------------------------------------------------------------
@@ -246,7 +256,7 @@ public class Train {
     // 描画する列車の位置を計算する
     private Point calcTrainPos(Time currentTime) {
         final float pos = calcPos(currentTime);
-        return lineData.calcPosOnLinePath(pos, this.getDirection());
+        return getDepartedStation().getLineData().calcPosOnLinePath(pos, this.getDirection());
     }
 
     // 描画する列車の領域を計算する
@@ -284,6 +294,10 @@ public class Train {
         return lineData.getTypeColor(this.trainData);
     }
 
+    public void combine(Train nextTrain) {
+        this.trainData = this.trainData.combine(nextTrain.trainData);
+    }
+
     // --------------------------------------------------------------------------------
     // マウスイベント
     // --------------------------------------------------------------------------------
@@ -309,6 +323,7 @@ public class Train {
     // --------------------------------------------------------------------------------
     @Override
     public String toString() {
-        return "列車番号: " + trainData.getTimeTable().trainID;
+        return "列車番号: " + trainData.getTimeTable().getTrainID();
     }
+
 }
