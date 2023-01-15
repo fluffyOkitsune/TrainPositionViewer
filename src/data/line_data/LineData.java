@@ -169,8 +169,47 @@ public abstract class LineData {
     // --------------------------------------------------------------------------------
     // 備考欄の列車の詳細情報
     // --------------------------------------------------------------------------------
-    public String getExtraKeyWord() {
-        return "◆《運転日注意》";
+    // マスク（平日運転）
+    public static final int OPR_DATE_MASK_WEEKDAYS = 0x1;
+    // マスク（土曜運転）
+    public static final int OPR_DATE_MASK_SATURDAY = 0x2;
+    // マスク（休日運転）
+    public static final int OPR_DATE_MASK_HOLIDAY = 0x4;
+    // マスク（運転日注意）
+    public static final int OPR_DATE_MASK_EXTRA = 0x8;
+
+    // （毎日運転）
+    public static final int OPR_DATE_EVERYDAY = 0xF;
+    // 【休日運休】
+    public static final int OPR_DATE_NOT_HOLYDAY = 0x3;
+    // 【土休日運休】
+    public static final int OPR_DATE_NOT_WEEKEND = 0x1;
+    // ◆（土曜運転）
+    public static final int OPR_DATE_ONLY_SATURDAY = 0x2;
+    // ◆（休日運転）
+    public static final int OPR_DATE_ONLY_HOLYDAY = 0x4;
+    // ◆（土休日運転）
+    public static final int OPR_DATE_ONLY_WEEKEND = 0x6;
+    // ◆《運転日注意》
+    public static final int OPR_DATE_EXTRA = 0x8;
+
+    public int getOperationDate(TrainData trainData) {
+        String note = trainData.getTimeTable().getNote();
+        if (note.contains("◆《運転日注意》")) {
+            return OPR_DATE_EXTRA;
+        } else if (note.contains("【休日運休】")) {
+            return OPR_DATE_NOT_HOLYDAY;
+        } else if (note.contains("【土休日運休】")) {
+            return OPR_DATE_NOT_WEEKEND;
+        } else if (note.contains("◆（土曜運転）")) {
+            return OPR_DATE_ONLY_SATURDAY;
+        } else if (note.contains("◆（休日運転）")) {
+            return OPR_DATE_ONLY_HOLYDAY;
+        } else if (note.contains("◆（土休日運転）")) {
+            return OPR_DATE_ONLY_WEEKEND;
+        } else {
+            return OPR_DATE_EVERYDAY;
+        }
     }
 
     // --------------------------------------------------------------------------------
@@ -210,13 +249,6 @@ public abstract class LineData {
     public abstract Image getIconImg(TrainData trainData);
 
     public abstract Color getTypeColor(TrainData trainData);
-
-    // 列車アイコンを描画する
-    public void drawTrain(Graphics g) {
-        for (Train t : train) {
-            t.draw(g);
-        }
-    }
 
     // 列車番号を描画する
     public void drawTrainID(Graphics g) {

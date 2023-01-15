@@ -2,6 +2,7 @@ package draw;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 import java.util.Map;
 
 import data.Time;
@@ -273,21 +274,63 @@ public class Train {
     private final AlphaComposite ALHA_COMP_NONE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
     private final AlphaComposite ALHA_COMP_HARF = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
 
-    public void draw(Graphics g) {
+    private static final Color COLOR_TRAINSPARENT = new Color(0, 0, 0, 0);
+
+    public void draw(Graphics2D g, int operationDateMask) {
         if (onDuty) {
-            Graphics2D g2 = (Graphics2D) g;
+            if ((trainData.getOperationDate() & operationDateMask) > 0) {
+                // 運転日の場合の表示
+                final boolean isExtra = trainData.getOperationDate() == LineData.OPR_DATE_EXTRA;
+                if (isExtra) {
+                    g.setComposite(ALHA_COMP_HARF);
+                } else {
+                    g.setComposite(ALHA_COMP_NONE);
+                }
+                g.drawImage(image, rect.getLocation().x, rect.getLocation().y, null);
 
-            final boolean isExtra = trainData.isExtra();
-            if (isExtra) {
-                g2.setComposite(ALHA_COMP_HARF);
+                // 描画が終わったら元の設定に戻す
+                g.setComposite(ALHA_COMP_NONE);
             } else {
-                g2.setComposite(ALHA_COMP_NONE);
+                // 運転日以外の場合の表示
+                Image img = getEdgeOfIcon(image, Color.GRAY);
+                g.drawImage(img, rect.getLocation().x, rect.getLocation().y, null);
+                img.flush();
             }
-            g.drawImage(image, rect.getLocation().x, rect.getLocation().y, null);
-
-            // 描画が終わったら元の設定に戻す
-            g2.setComposite(ALHA_COMP_NONE);
         }
+    }
+
+    private static Image getEdgeOfIcon(Image image, Color edgeColor) {
+        // 外側部分を取得
+        BufferedImage imgOutside = new BufferedImage(image.getWidth(null), image.getHeight(null),
+                BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics imgOutsideG = imgOutside.getGraphics();
+        imgOutsideG.drawImage(image, 0, 0, null);
+        imgOutsideG.dispose();
+
+        // 内側部分を取得
+        BufferedImage imgInside = new BufferedImage(image.getWidth(null), image.getHeight(null),
+                BufferedImage.TYPE_4BYTE_ABGR);
+        int edgeSize = 2;
+
+        Graphics imgInsideG = imgInside.getGraphics();
+        imgInsideG.drawImage(image, edgeSize, edgeSize, image.getWidth(null) - 2 * edgeSize,
+                image.getHeight(null) - 2 * edgeSize, null);
+        imgInsideG.dispose();
+
+        // 描画
+        for (int x = 0; x < imgOutside.getTileWidth(); x++) {
+            for (int y = 0; y < imgOutside.getTileHeight(); y++) {
+                if (imgOutside.getRGB(x, y) != 0) {
+                    if (imgInside.getRGB(x, y) != 0) {
+                        imgOutside.setRGB(x, y, COLOR_TRAINSPARENT.getRGB());
+                    } else {
+                        imgOutside.setRGB(x, y, edgeColor.getRGB());
+                    }
+                }
+            }
+        }
+        imgInside.flush();
+        return imgOutside;
     }
 
     public Color getTypeColor() {

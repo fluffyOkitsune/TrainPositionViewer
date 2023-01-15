@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -16,10 +17,16 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 
 import data.Time;
+import data.line_data.LineData;
 
 public class MainWindow extends JFrame implements ActionListener {
+    private App app;
+
     // メイン描画パネル
     private PanelTrainViewer panelTrainViewer;
+
+    // 表示する日付設定用コンボボックス
+    private JComboBox<String> comOperationDate;
 
     // 表示する時刻設定用スピナー
     private JSpinner spnTime;
@@ -27,11 +34,14 @@ public class MainWindow extends JFrame implements ActionListener {
 
     // 現在時刻を描画するチェックボックス
     private JCheckBox cbAutoSetCurrTime;
+
     // 列車番号を表示するチェックボックス
     private JCheckBox cbDispID;
 
     public MainWindow(App app, String title, int width, int height) {
         super(title);
+        this.app = app;
+
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(width, height);
         setLocationRelativeTo(null);
@@ -83,16 +93,30 @@ public class MainWindow extends JFrame implements ActionListener {
         cbDispID.setActionCommand("DISP_ID");
         cbDispID.addActionListener(this);
 
+        // 運転日時設定用コンボボックス
+        comOperationDate = new JComboBox<>();
+        comOperationDate.addItem("平日");
+        comOperationDate.addItem("土曜");
+        comOperationDate.addItem("休日");
+        comOperationDate.setActionCommand("DATE");
+        comOperationDate.addActionListener(this);
+        panel.add(comOperationDate);
+        comOperationDate.setSelectedIndex(0);
+
         // 現在時刻設定用スピナー
         spnTime = new JSpinner(spnTimeModel = new TimeSpinnerModel());
-        spnTime.addChangeListener(app);
+        spnTime.addChangeListener(e -> {
+            update();
+        });
         spnTime.setPreferredSize(new Dimension(100, 20));
         panel.add(spnTime);
 
         add(panel, BorderLayout.SOUTH);
-
     }
 
+    // --------------------------------------------------------------------------------
+    // アニメーション用スレッド
+    // --------------------------------------------------------------------------------
     private Thread threadAnimation;
     private static final long ANIM_CYCLIC_TIME_MS = 50;
 
@@ -121,8 +145,26 @@ public class MainWindow extends JFrame implements ActionListener {
         threadAnimation.start();
     }
 
+    // --------------------------------------------------------------------------------
+    // 現在時刻をセット処理
+    // --------------------------------------------------------------------------------
     private Thread threadAutoGetCurrTime;
 
+    // --------------------------------------------------------------------------------
+    // 値変更イベント処理
+    // --------------------------------------------------------------------------------
+    public void update() {
+        Time currentTime = new Time(getHour(), getMin(), getSec());
+
+        // 現在時刻で列車位置データを更新
+        app.regionData.update(currentTime);
+
+        panelTrainViewer.repaint();
+    }
+
+    // --------------------------------------------------------------------------------
+    // ボタン操作処理
+    // --------------------------------------------------------------------------------
     @Override
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
@@ -138,9 +180,26 @@ public class MainWindow extends JFrame implements ActionListener {
             case "AUTO":
                 switchAutoMode();
                 break;
+            case "DATE":
+                setOparationDate(comOperationDate.getSelectedIndex());
+                break;
             case "DISP_ID":
                 panelTrainViewer.enableDispID = cbDispID.isSelected();
                 update();
+                break;
+        }
+    }
+
+    private void setOparationDate(int selectedIndex) {
+        switch (selectedIndex) {
+            case 0: // 平日
+                panelTrainViewer.setOperationDateMask(LineData.OPR_DATE_MASK_WEEKDAYS | LineData.OPR_DATE_MASK_EXTRA);
+                break;
+            case 1: // 土曜
+                panelTrainViewer.setOperationDateMask(LineData.OPR_DATE_MASK_SATURDAY | LineData.OPR_DATE_MASK_EXTRA);
+                break;
+            case 2: // 休日
+                panelTrainViewer.setOperationDateMask(LineData.OPR_DATE_MASK_HOLIDAY | LineData.OPR_DATE_MASK_EXTRA);
                 break;
         }
     }
@@ -154,7 +213,7 @@ public class MainWindow extends JFrame implements ActionListener {
                         while (true) {
                             try {
                                 LocalDateTime nowDate = LocalDateTime.now();
-                                spnTime.setValue(
+                                spnTime.getModel().setValue(
                                         new Time(nowDate.getHour(), nowDate.getMinute(), nowDate.getSecond()));
                                 sleep(500);
                             } catch (InterruptedException e) {
@@ -172,10 +231,6 @@ public class MainWindow extends JFrame implements ActionListener {
                 threadAutoGetCurrTime = null;
             }
         }
-    }
-
-    public void update() {
-        panelTrainViewer.repaint();
     }
 
     public int getSec() {

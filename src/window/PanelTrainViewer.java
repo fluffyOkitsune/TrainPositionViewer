@@ -67,15 +67,6 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         g.drawImage(offscreenImg, 0, 0, null);
     }
 
-    private void clearImg(Image image, Graphics2D g) {
-        Composite temp = g.getComposite();
-
-        g.setComposite(AlphaComposite.Clear);
-        g.fillRect(0, 0, image.getWidth(null), image.getHeight(null));
-
-        g.setComposite(temp);
-    }
-
     synchronized public void drawOffscreen() {
         offscreenG.setColor(BG_COLOR);
         offscreenG.fillRect(0, 0, offscreenImg.getWidth(null), offscreenImg.getHeight(null));
@@ -89,8 +80,11 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
     private StationData[] stopsStations;
     private Train selectedTrain;
 
+    private int operationDateMask;
+
     private void drawTrainViewer(Graphics2D g) {
-        app.regionData.drawTrain(g);
+
+        app.regionData.drawTrain(g, operationDateMask);
         app.regionData.drawStation(g);
 
         app.regionData.drawStops(g, selectedTrain, stopsStations);
@@ -176,5 +170,9 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
 
     @Override
     public void mouseMoved(MouseEvent e) {
+    }
+
+    public void setOperationDateMask(int operationDateMask) {
+        this.operationDateMask = operationDateMask;
     }
 }

@@ -8,26 +8,21 @@ public class TrainData {
     private TimeTable timeTable;
     private LineData lineData;
 
-    // 臨時列車
-    private boolean isExtra;
+    // 列車運転日
+    private int operationDate;
 
     public TrainData(TimeTable timeTable, LineData lineData) {
         this.timeTable = timeTable;
         this.lineData = lineData;
-        isExtra = containsExtraKeyWord(lineData, timeTable.note);
-    }
-
-    private boolean containsExtraKeyWord(LineData lineData, String note) {
-        String extrakeyWord = lineData.getExtraKeyWord();
-        return note.contains(extrakeyWord);
+        operationDate = lineData.getOperationDate(this);
     }
 
     public TimeTable getTimeTable() {
         return timeTable;
     }
 
-    public boolean isExtra() {
-        return isExtra;
+    public int getOperationDate() {
+        return operationDate;
     }
 
     public TrainData combine(TrainData trainData) {

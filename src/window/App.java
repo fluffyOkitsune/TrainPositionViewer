@@ -1,7 +1,6 @@
 package window;
 
 import javax.swing.*;
-import javax.swing.event.*;
 
 import data.Time;
 import data.line_data.IndependentLineRegion;
@@ -9,7 +8,7 @@ import data.line_data.LineData;
 import data.line_data.RegionData;
 import sample_data.*;
 
-public class App implements ChangeListener {
+public class App {
     private MainWindow win;
 
     public RegionData regionData;
@@ -17,7 +16,7 @@ public class App implements ChangeListener {
     public static void main(String[] args) {
         App app = new App();
         app.win = new MainWindow(app, "テストウィンドウ", 1000, 500);
-        app.update();
+        app.win.update();
         app.win.setVisible(true);
         app.win.startAnim();
     }
@@ -113,24 +112,7 @@ public class App implements ChangeListener {
         }
     }
 
-    @Override
-    public void stateChanged(ChangeEvent e) {
-        update();
-    }
-
-    private void update() {
-        Time currentTime = getCurrentTime();
-
+    public void update(Time currentTime) {
         regionData.update(currentTime);
-
-        win.update();
-    }
-
-    private Time getCurrentTime() {
-        int hour = win.getHour();
-        int min = win.getMin();
-        int sec = win.getSec();
-
-        return new Time(hour, min, sec);
     }
 }
