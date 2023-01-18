@@ -39,12 +39,14 @@ public class TimeTable {
     // --------------------------------------------------------------------------------
     // 着駅を追加する。
     public void setArrived(LineData lineData, int staID, String strTime) {
+        int fixStaID = fixStaID(staID, lineData, this.direction);
         if (strTime.equals("")) {
             return;
         } else if (strTime.equals("||")) {
             // IDの駅を列車が通らない場合
             if (!mapTimeBuf.containsKey(staID)) {
-                mapTimeBuf.put(staID, new TimeData(lineData.getStationData(fixStaID(staID, lineData, this.direction))));
+                TimeData timeData = new TimeData(lineData.getStationData(fixStaID), this.direction);
+                mapTimeBuf.put(staID, timeData);
                 mapTimeBuf.get(staID).setArrivedTime(TimeTable.DETOUR);
             }
         } else {
@@ -60,7 +62,8 @@ public class TimeTable {
 
             // 時刻データオブジェクトが登録されていない場合は新規に作成する
             if (!mapTimeBuf.containsKey(staID)) {
-                mapTimeBuf.put(staID, new TimeData(lineData.getStationData(fixStaID(staID, lineData, this.direction))));
+                TimeData timeData = new TimeData(lineData.getStationData(fixStaID), this.direction);
+                mapTimeBuf.put(staID, timeData);
             }
 
             mapTimeBuf.get(staID).setArrived(strTime);
@@ -69,12 +72,14 @@ public class TimeTable {
 
     // 発駅を追加する。
     public void setDeparture(LineData lineData, int staID, String strTime) {
+        int fixStaID = fixStaID(staID, lineData, this.direction);
         if (strTime.equals("")) {
             return;
         } else if (strTime.equals("||")) {
             // IDの駅を列車が通らない場合
             if (!mapTimeBuf.containsKey(staID)) {
-                mapTimeBuf.put(staID, new TimeData(lineData.getStationData(fixStaID(staID, lineData, this.direction))));
+                TimeData timeData = new TimeData(lineData.getStationData(fixStaID), this.direction);
+                mapTimeBuf.put(staID, timeData);
                 mapTimeBuf.get(staID).setDepartureTime(TimeTable.DETOUR);
             }
         } else {
@@ -90,7 +95,8 @@ public class TimeTable {
 
             // 時刻データオブジェクトが登録されていない場合は新規に作成する
             if (!mapTimeBuf.containsKey(staID)) {
-                mapTimeBuf.put(staID, new TimeData(lineData.getStationData(fixStaID(staID, lineData, this.direction))));
+                TimeData timeData = new TimeData(lineData.getStationData(fixStaID), this.direction);
+                mapTimeBuf.put(staID, timeData);
             }
 
             mapTimeBuf.get(staID).setDeparture(strTime);
@@ -133,7 +139,7 @@ public class TimeTable {
 
     // 迂回データで分離する
     public TimeTable[] separateDetour() {
-        if(timeData == null){
+        if (timeData == null) {
             return null;
         }
 
@@ -343,8 +349,7 @@ public class TimeTable {
     // --------------------------------------------------------------------------------
     @Override
     public String toString() {
-        return "TimeTable [trainID=" + trainID + ", trainType=" + trainType + ", trainName=" + trainName + ", trainNo="
-                + trainNo + ", timeTable=" + mapTimeBuf + "]";
+        return "TimeTable [" + trainID + "] " + getFirstStation() + "->" + getTerminalStation();
     }
 
     @Override

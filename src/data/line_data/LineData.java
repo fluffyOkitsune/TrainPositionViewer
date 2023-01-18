@@ -153,17 +153,18 @@ public abstract class LineData {
             if (dist < epp[i].getEndPointDist()) {
                 float distBwPoints;
 
-                if (i > 0) {
+                if (i == 0) {
+                    // 最初の駅が0kmとは限らない
+                    distBwPoints = epp[0].getEndPointDist();
+                    return epp[i].calcPositionOnLinePath(dist / distBwPoints);
+                } else if (i < epp.length) {
                     distBwPoints = epp[i].getEndPointDist() - epp[i - 1].getEndPointDist();
                     dist -= epp[i - 1].getEndPointDist();
-                } else {
-                    distBwPoints = epp[i].getEndPointDist();
+                    return epp[i].calcPositionOnLinePath(dist / distBwPoints);
                 }
-                return epp[i].calcPositionOnLinePath(dist / distBwPoints);
             }
         }
-
-        return new Point(0, 0);
+        return epp[epp.length - 1].calcPositionOnLinePath(1.0f);
     }
 
     // --------------------------------------------------------------------------------
@@ -327,5 +328,10 @@ public abstract class LineData {
 
     public Train[] getTrain() {
         return train;
+    }
+
+    @Override
+    public String toString() {
+        return "LineData [" + getLineName() + "]";
     }
 }

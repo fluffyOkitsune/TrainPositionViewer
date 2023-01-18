@@ -218,6 +218,14 @@ public class Train {
     }
 
     // --------------------------------------------------------------------------------
+    public TimeData getDepartedTimeData() {
+        return departed;
+    }
+
+    public TimeData getDestinationTimeData() {
+        return destination;
+    }
+
     public StationData getDepartedStation() {
         if (departed == null) {
             return null;
@@ -252,12 +260,19 @@ public class Train {
     // 描画関係
     public boolean onDuty;
     private Rectangle rect;
+    private float currentDist;
     private Image image;
 
     // 描画する列車の位置を計算する
     private Point calcTrainPos(Time currentTime) {
-        final float pos = calcPos(currentTime);
-        return getDepartedStation().getLineData().calcPosOnLinePath(pos, this.getDirection());
+        StationData dep = getDepartedStation();
+        StationData dest = getDestinationStation();
+
+        // 出発駅と目的地駅が同じ路線の場合だけ、距離計算ができる。
+        if (dep.getLineData() == dest.getLineData()) {
+            currentDist = calcPos(currentTime);
+        }
+        return dep.getLineData().calcPosOnLinePath(currentDist, this.getDepartedTimeData().getDirection());
     }
 
     // 描画する列車の領域を計算する

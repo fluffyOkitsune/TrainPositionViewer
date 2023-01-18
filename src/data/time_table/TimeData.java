@@ -1,6 +1,7 @@
 package data.time_table;
 
 import data.Time;
+import data.line_data.LineData.Direction;
 
 // 時刻表の時刻
 public class TimeData {
@@ -14,10 +15,12 @@ public class TimeData {
 
     private Time arrivedTime;
     private Time departureTime;
+    private Direction direction;
 
-    TimeData(StationData stationData) {
+    TimeData(StationData stationData, Direction direction) {
         this.stationData = stationData;
-        
+        this.direction = direction;
+
         this.type = TYPE_BLANK;
         setArrivedTime(null);
         setDepartureTime(null);
@@ -74,14 +77,12 @@ public class TimeData {
     }
 
     // --------------------------------------------------------------------------------
-    @Override
-    public String toString() {
-        return "Time [type=" + type + ", arrived=" + arrivedTime + ", departure=" + departureTime + "]";
-    }
-
-    // --------------------------------------------------------------------------------
     public StationData getStationData() {
         return stationData;
+    }
+
+    public Direction getDirection() {
+        return direction;
     }
 
     public byte getType() {
@@ -122,4 +123,15 @@ public class TimeData {
         this.departureTime = departureTime;
     }
 
+    // --------------------------------------------------------------------------------
+    @Override
+    public String toString() {
+        if (type == TYPE_DETOUR) {
+            return "経由なし";
+        } else if (type == TYPE_PASS) {
+            return "通過";
+        } else {
+            return stationData.getName() + " : " + arrivedTime + "着 / " + departureTime + "発";
+        }
+    }
 }

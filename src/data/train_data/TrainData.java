@@ -6,14 +6,16 @@ import data.time_table.TimeTable;
 // ロード後に変化することのない列車運行データを格納する
 public class TrainData {
     private TimeTable timeTable;
-    private LineData lineData;
 
     // 列車運転日
     private int operationDate;
 
-    public TrainData(TimeTable timeTable, LineData lineData) {
+    public TrainData(TimeTable timeTable) {
         this.timeTable = timeTable;
-        this.lineData = lineData;
+    }
+
+    public TrainData(TimeTable timeTable, LineData lineData) {
+        this(timeTable);
         operationDate = lineData.getOperationDate(this);
     }
 
@@ -26,7 +28,13 @@ public class TrainData {
     }
 
     public TrainData combine(TrainData trainData) {
-        TimeTable tt = this.timeTable.combine(trainData.timeTable);
-        return new TrainData(tt, lineData);
+        TrainData res = new TrainData(this.timeTable.combine(trainData.timeTable));
+        res.operationDate = this.operationDate;
+        return res;
+    }
+
+    @Override
+    public String toString() {
+        return "TrainData[" + timeTable.getTrainID() + "]";
     }
 }
