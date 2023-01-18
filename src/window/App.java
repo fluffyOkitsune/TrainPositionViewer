@@ -47,13 +47,13 @@ public class App {
             regionData = new IndependentLineRegion(new NambuLine());
         }
 
-        // 東海道線（東京 - 熱海） (2018[平日])
-        if (false) {
-            regionData = new IndependentLineRegion(new TokaidoLine());
+        // 上野東京ライン・湘南新宿ライン (2018[平日])
+        if (true) {
+            regionData = new JRE_SubUrbanLine();
         }
 
         // 東海道線（東京 - 名古屋） (1968)
-        if (true) {
+        if (false) {
             regionData = new IndependentLineRegion(new JNR_TokaidoLine());
         }
 
