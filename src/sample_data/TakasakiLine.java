@@ -13,8 +13,8 @@ import data.line_data.LineData;
 import data.line_data.LineSegmentPath;
 import data.train_data.TrainData;
 
-public class TokaidoLine extends LineData {
-    // 東海道線
+public class TakasakiLine extends LineData {
+    // 高崎線
     private Image imageIconLocal;
     private Image imageIconRapid;
     private Image imageIconComRapid;
@@ -28,33 +28,22 @@ public class TokaidoLine extends LineData {
     private Image imageIcon_JS_Rapid;
     private Image imageIcon_JS_SpRapid;
 
-    // 常磐線
-    private Image imageIcon_JJ_Local;
-    private Image imageIcon_JJ_Rapid;
-    private Image imageIcon_JJ_SpLapid;
-
     // 特急
-    private Image imageIconLtdOdoriko;
-    private Image imageIconLtdSVO;
-    private Image imageIconLtdHitachi;
-    private Image imageIconSleepingLtd;
+    private Image imageIconLtdAkagi;
 
     private static final Color COLOR_LOCAL = new Color(24, 166, 41);
     private static final Color COLOR_RAPID = new Color(246, 139, 30);
     private static final Color COLOR_COMMUTER_RAPID = new Color(96, 24, 134);
     private static final Color COLOR_SPECIAL_RAPID = new Color(51, 204, 255);
 
-    private static final Color COLOR_JJ_LOCAL = new Color(0, 208, 104);
-    private static final Color COLOR_JJ_RAPID = new Color(0, 63, 108);
-
     private static final Color COLOR_JT_LINE = new Color(128, 0, 128);
     private static final Color COLOR_JS_LINE = new Color(226, 31, 38);
 
-    public TokaidoLine() {
+    public TakasakiLine() {
         super();
         try {
             Image img;
-            // 東海道線（E233）
+            // 高崎線（E233）
             img = ImageIO.read(new File("icon/e233sh.png"));
             imageIconLocal = LineData.createEdgedImage(img, COLOR_LOCAL, 2);
             imageIconRapid = LineData.createEdgedImage(img, COLOR_RAPID, 2);
@@ -79,18 +68,7 @@ public class TokaidoLine extends LineData {
             img = LineData.createEdgedImage(img, COLOR_JS_LINE, 2);
             imageIcon_JS_SpRapid = LineData.createEdgedImage(img, COLOR_SPECIAL_RAPID, 2);
 
-            // 常磐線
-            img = ImageIO.read(new File("icon/e531s.png"));
-            imageIcon_JJ_Local = LineData.createEdgedImage(img, COLOR_JJ_LOCAL, 2);
-            imageIcon_JJ_SpLapid = LineData.createEdgedImage(img, COLOR_SPECIAL_RAPID, 2);
-
-            img = ImageIO.read(new File("icon/e231jy1.png"));
-            imageIcon_JJ_Rapid = LineData.createEdgedImage(img, COLOR_JJ_RAPID, 2);
-
-            imageIconLtdOdoriko = ImageIO.read(new File("icon/e185odj.png"));
-            imageIconLtdSVO = ImageIO.read(new File("icon/e261.png"));
-            imageIconLtdHitachi = ImageIO.read(new File("icon/e657.png"));
-            imageIconSleepingLtd = ImageIO.read(new File("icon/w285.png"));
+            imageIconLtdAkagi = ImageIO.read(new File("icon/e651f.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -105,7 +83,7 @@ public class TokaidoLine extends LineData {
 
     @Override
     public String getLineName() {
-        return "東海道線";
+        return "高崎線";
     }
 
     @Override
@@ -113,70 +91,53 @@ public class TokaidoLine extends LineData {
         int offset;
 
         if (direction == Direction.OUTBOUND) {
-            offset = +20;
-        } else {
             offset = -20;
+        } else {
+            offset = +20;
         }
 
         EasyPathPoint[] epp = {
-                // 東京 - 品川
+                // 上野 - 赤羽
                 LineSegmentPath.getInstance(getDistProportion(2),
-                        new Point(JRE_SubUrbanLine.ORIGIN.x + 1800, JRE_SubUrbanLine.ORIGIN.y + 200 + offset),
-                        new Point(JRE_SubUrbanLine.ORIGIN.x + 1600, JRE_SubUrbanLine.ORIGIN.y + 200 + offset)),
-                // 品川 - 横浜
-                LineSegmentPath.getInstance(getDistProportion(4),
-                        new Point(JRE_SubUrbanLine.ORIGIN.x + 1600, JRE_SubUrbanLine.ORIGIN.y + 200 + offset),
-                        new Point(JRE_SubUrbanLine.ORIGIN.x + 1200, JRE_SubUrbanLine.ORIGIN.y + 200 + offset)),
-                // 横浜 - 戸塚
+                        new Point(JRE_SubUrbanLine.ORIGIN.x + 1900, JRE_SubUrbanLine.ORIGIN.y + 200 + offset),
+                        new Point(JRE_SubUrbanLine.ORIGIN.x + 2000, JRE_SubUrbanLine.ORIGIN.y + 200 + offset)),
+                // 赤羽 - 浦和
+                LineSegmentPath.getInstance(getDistProportion(3),
+                        new Point(JRE_SubUrbanLine.ORIGIN.x + 2000, JRE_SubUrbanLine.ORIGIN.y + 200 + offset),
+                        new Point(JRE_SubUrbanLine.ORIGIN.x + 2200, JRE_SubUrbanLine.ORIGIN.y + 200 + offset)),
+                // 浦和 - 大宮
                 LineSegmentPath.getInstance(getDistProportion(5),
-                        new Point(JRE_SubUrbanLine.ORIGIN.x + 1200, JRE_SubUrbanLine.ORIGIN.y + 200 + offset),
-                        new Point(JRE_SubUrbanLine.ORIGIN.x + 1000, JRE_SubUrbanLine.ORIGIN.y + 200 + offset)),
-                // 戸塚 - 大船
-                LineSegmentPath.getInstance(getDistProportion(6),
-                        new Point(JRE_SubUrbanLine.ORIGIN.x + 1000, JRE_SubUrbanLine.ORIGIN.y + 200 + offset),
-                        new Point(JRE_SubUrbanLine.ORIGIN.x + 900, JRE_SubUrbanLine.ORIGIN.y + 200 + offset)),
-                // 大船 - 熱海
-                LineSegmentPath.getInstance(getDistProportion(20),
-                        new Point(JRE_SubUrbanLine.ORIGIN.x + 900, JRE_SubUrbanLine.ORIGIN.y + 200 + offset),
-                        new Point(JRE_SubUrbanLine.ORIGIN.x + 0, JRE_SubUrbanLine.ORIGIN.y + 200 + offset)),
+                        new Point(JRE_SubUrbanLine.ORIGIN.x + 2200, JRE_SubUrbanLine.ORIGIN.y + 200 + offset),
+                        new Point(JRE_SubUrbanLine.ORIGIN.x + 2300, JRE_SubUrbanLine.ORIGIN.y + 200 + offset)),
+                // 大宮 - 上尾
+                LineSegmentPath.getInstance(getDistProportion(7),
+                        new Point(JRE_SubUrbanLine.ORIGIN.x + 2300, JRE_SubUrbanLine.ORIGIN.y + 200 + offset),
+                        new Point(JRE_SubUrbanLine.ORIGIN.x + 2400, JRE_SubUrbanLine.ORIGIN.y + 100 + offset)),
+                // 上尾 - 高崎
+                LineSegmentPath.getInstance(getDistProportion(23),
+                        new Point(JRE_SubUrbanLine.ORIGIN.x + 2400, JRE_SubUrbanLine.ORIGIN.y + 100 + offset),
+                        new Point(JRE_SubUrbanLine.ORIGIN.x + 3300, JRE_SubUrbanLine.ORIGIN.y + 100 + offset)),
         };
         return generateEasyPathPoint(epp, dist);
     }
 
     @Override
     protected String getStationDataCsvPath() {
-        return "time_table/jre_tokaido_line_station.csv";
+        return "time_table/takasaki_line_station.csv";
     }
 
     @Override
     protected String getTimeTableOutCsvPath() {
-        return "time_table/jre_tokaido_line_weekdays_out.csv";
+        return "time_table/takasaki_line_weekdays_out.csv";
     }
 
     @Override
     protected String getTimeTableInCsvPath() {
-        return "time_table/jre_tokaido_line_weekdays_in.csv";
+        return "time_table/takasaki_line_weekdays_in.csv";
     }
 
     @Override
     public Image getIconImg(TrainData trainData) {
-        // 寝台特急
-        if (trainData.getTimeTable().getTrainType().equals("★彡")) {
-            return imageIconSleepingLtd;
-        }
-        if (trainData.getTimeTable().getTrainType().equals("特急")) {
-            String trainName = trainData.getTimeTable().getTrainName();
-            switch (trainName) {
-                case "スーパービュー踊り子":
-                    return imageIconLtdSVO;
-                case "ひたち":
-                case "ときわ":
-                    return imageIconLtdHitachi;
-                default:
-                    return imageIconLtdOdoriko;
-            }
-        }
-
         String trainID = trainData.getTimeTable().getTrainID();
         String trainType = trainData.getTimeTable().getTrainType();
         char alphabet = trainID.charAt(trainID.length() - 1);
@@ -199,23 +160,13 @@ public class TokaidoLine extends LineData {
                     default:
                         return imageIcon_JS_Local;
                 }
-            case 'H':
-                // 常磐線快速
-                return imageIcon_JJ_Rapid;
-            case 'M':
-                if (trainType.equals("特快") && trainID.length() == 5 && trainID.charAt(0) == '3') {
-                    // 3***M の特快は常磐線
-                    return imageIcon_JJ_SpLapid;
-                } else if (trainID.length() == 5 && trainID.charAt(0) == '1') {
-                    // 1***M の特快は常磐線
-                    return imageIcon_JJ_Local;
-                }
-                break;
             default:
                 break;
         }
         // 東海道線
         switch (trainType) {
+            case "特急":
+                return imageIconLtdAkagi;
             case "通快":
                 return imageIconComRapid;
             case "快速":
@@ -228,8 +179,6 @@ public class TokaidoLine extends LineData {
     @Override
     public Color getTypeColor(TrainData trainData) {
         switch (trainData.getTimeTable().getTrainType()) {
-            case "★彡": // 寝台特急
-                return Color.RED;
             case "特急":
                 return Color.RED;
             case "特快":

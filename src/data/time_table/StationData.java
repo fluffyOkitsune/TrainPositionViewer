@@ -147,6 +147,6 @@ public class StationData {
 
     @Override
     public String toString() {
-        return "StationData [name=" + name + ", distance=" + distance + "]";
+        return name + " (" + distance + " km)";
     }
 }

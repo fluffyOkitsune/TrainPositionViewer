@@ -166,10 +166,7 @@ public class TrainInfoWindow {
             String trainMainInfo = String.format("%s [%s]", trainID, trainType);
             String trainName = generateTrainNameStr(selectedTrain);
             String destination = selectedTrain.getTerminalStation().getName() + "行";
-            String note = "";
-            if (selectedTrain.trainData.isExtra()) {
-                note = "◆《運転日注意》";
-            }
+            String note = train.trainData.getTimeTable().getNote();
 
             contents = new String[4];
             contents[0] = trainMainInfo;

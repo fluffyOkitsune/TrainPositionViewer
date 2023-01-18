@@ -112,9 +112,9 @@ public abstract class RegionData {
     // 描画処理（列車）
     // --------------------------------------------------------------------------------
     // 列車アイコンを描画する
-    public void drawTrain(Graphics g) {
+    public void drawTrain(Graphics g, int operationDateMask) {
         for (Train t : train) {
-            t.draw(g);
+            t.draw((Graphics2D) g, operationDateMask);
         }
     }
 
