@@ -130,7 +130,7 @@ public class MainWindow extends JFrame implements ActionListener {
                         panelTrainViewer.drawOffscreen();
                         panelTrainViewer.repaint();
                         long erapsedTime = System.currentTimeMillis() - time;
-                        System.out.println(String.format("Erapsed: %d", erapsedTime));
+                        // System.out.println(String.format("Erapsed: %d", erapsedTime));
 
                         long sleepTime = ANIM_CYCLIC_TIME_MS - erapsedTime;
                         if (sleepTime > 0) {

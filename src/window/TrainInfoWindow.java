@@ -43,20 +43,6 @@ public class TrainInfoWindow {
     }
 
     // --------------------------------------------------------------------------------
-    // その他
-    // --------------------------------------------------------------------------------
-    private final Stroke STROKE_TRAIN_INDICATION_FRAME = new BasicStroke(5.0f);
-
-    // 選択した列車を指し示す枠
-    private void drawTrainIndicationFrame(Graphics g) {
-        Rectangle frameRect = selectedTrain.getRect();
-
-        g.setColor(Color.RED);
-        ((Graphics2D) g).setStroke(STROKE_TRAIN_INDICATION_FRAME);
-        g.drawRect(frameRect.x, frameRect.y, frameRect.width, frameRect.height);
-    }
-
-    // --------------------------------------------------------------------------------
     // 列車選択
     // --------------------------------------------------------------------------------
     public void selectTrain(Train train, Graphics2D g) {
@@ -253,8 +239,6 @@ public class TrainInfoWindow {
         if (!selectedTrain.onDuty) {
             return;
         }
-
-        drawTrainIndicationFrame(g);
 
         if (cntAnimOpen < cntAnimOpenTh) {
             cntAnimOpen++;
