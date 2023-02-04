@@ -295,6 +295,10 @@ public class TimeTable {
         this.note = note;
     }
 
+    public TimeData[] getTimeData() {
+        return timeData;
+    }
+
     public TimeData getTimeData(int stationID) {
         return timeData[stationID];
     }

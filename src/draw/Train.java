@@ -378,6 +378,10 @@ public class Train {
         return this.lineData;
     }
 
+    public Image getImage() {
+        return image;
+    }
+
     // --------------------------------------------------------------------------------
     @Override
     public String toString() {

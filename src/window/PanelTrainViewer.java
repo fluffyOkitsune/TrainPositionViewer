@@ -25,6 +25,9 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
     // 列車情報表示ウィンドウ
     private TrainInfoWindow trainInfoWindow;
 
+    // 列車選択表示枠
+    private TrainCursol trainIndicationWindow;
+
     PanelTrainViewer(App app) {
         this.app = app;
 
@@ -45,6 +48,7 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         offscreenG = (Graphics2D) offscreenImg.getGraphics();
 
         trainInfoWindow = new TrainInfoWindow();
+        trainIndicationWindow = new TrainCursol();
     }
 
     private StationData[] getStopsStations(Train train) {
@@ -85,6 +89,8 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
     private void drawTrainViewer(Graphics2D g) {
 
         app.regionData.drawTrain(g, operationDateMask);
+        trainIndicationWindow.drawTrainCursol(offscreenG);
+        
         app.regionData.drawStation(g);
 
         app.regionData.drawStops(g, selectedTrain, stopsStations);
@@ -123,7 +129,7 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
 
     // アニメーションのあるウィンドウを描画する（50[ms] で描画）
     private void drawAnimWindows(Graphics2D g) {
-        trainInfoWindow.drawTrainInfo(offscreenG);
+        trainInfoWindow.drawTrainInfo(offscreenG);        
     }
 
     // --------------------------------------------------------------------------------
@@ -139,7 +145,9 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
     private void selectTrain(Train train) {
         selectedTrain = train;
 
+        trainIndicationWindow.selectTrain(train);
         trainInfoWindow.selectTrain(train, offscreenG);
+
         stopsStations = getStopsStations(train);
     }
 
