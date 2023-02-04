@@ -87,7 +87,7 @@ public class TrainInfoWindow {
         bufImgG.fillRect(mergin, mergin, size.width, box[0].getStrRect().height + mergin);
 
         // 種別 背景
-        Color typeColor = train.getDepartedStation().getLineData().getTypeColor(train.trainData);
+        Color typeColor = train.getTypeColor();
         bufImgG.setColor(typeColor);
         bufImgG.fillRect(mergin, mergin + box[0].getStrRect().height, size.width, box[1].getStrRect().height + mergin);
 
@@ -147,22 +147,22 @@ public class TrainInfoWindow {
 
     // 種別と行先
     private String generateMainInfoStr(Train train) {
-        String trainID = selectedTrain.trainData.getTimeTable().getTrainID();
-        String trainType = selectedTrain.trainData.getTimeTable().getTrainType();
+        String trainID = selectedTrain.getTimeTable().getTrainID();
+        String trainType = selectedTrain.getTimeTable().getTrainType();
         return String.format("%s [%s]", trainID, trainType);
     }
 
     // 列車名
     private String generateTrainNameStr(Train train) {
         String str = "";
-        String trainName = train.trainData.getTimeTable().getTrainName();
+        String trainName = train.getTimeTable().getTrainName();
         if (trainName.isEmpty()) {
             return str;
         }
         str += "\n" + trainName;
 
         // 号
-        String trainNo = train.trainData.getTimeTable().getTrainNo();
+        String trainNo = train.getTimeTable().getTrainNo();
         if (trainNo.isEmpty()) {
             return str;
         }
@@ -186,7 +186,7 @@ public class TrainInfoWindow {
 
     // 注記
     private String generateNoteStr(Train train) {
-        return train.trainData.getTimeTable().getNote().trim();
+        return train.getTimeTable().getNote().trim();
     }
 
     // 直通列車の境界駅を調べる。
@@ -196,16 +196,16 @@ public class TrainInfoWindow {
 
         // 出発駅のIDを探索
         // 3以上の路線を直通する場合があるので、列車がすでに発車した駅から境界駅を探さないとダメ
-        for (int staID = 0; staID < train.trainData.getTimeTable().getTimeDataSize(); staID++) {
-            stationData = train.trainData.getTimeTable().getTimeData(staID).getStationData();
+        for (int staID = 0; staID < train.getTimeTable().getTimeDataSize(); staID++) {
+            stationData = train.getTimeTable().getTimeData(staID).getStationData();
             if (stationData == train.getDepartedStation()) {
                 depStaID = staID;
                 break;
             }
         }
 
-        for (int staID = depStaID; staID < train.trainData.getTimeTable().getTimeDataSize(); staID++) {
-            stationData = train.trainData.getTimeTable().getTimeData(staID).getStationData();
+        for (int staID = depStaID; staID < train.getTimeTable().getTimeDataSize(); staID++) {
+            stationData = train.getTimeTable().getTimeData(staID).getStationData();
 
             // 境界駅は直通運転で路線が切り替わる境界の前と後で、両方の路線データで定義されているため、
             // 実際には同じ駅であるが、駅データとしては異なる駅として定義されている。
