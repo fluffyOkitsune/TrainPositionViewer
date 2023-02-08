@@ -55,7 +55,7 @@ public class PanelTrainViewer extends JPanel implements MouseInputListener {
         if (train == null) {
             return RegionData.STOPS_NOTHING;
         } else {
-            return train.trainData.getTimeTable().getStopStations();
+            return train.getTimeTable().getStopStations();
         }
     }
 

@@ -60,7 +60,7 @@ public abstract class LineData {
 
         minReqTime = new HashMap<>();
         for (Train t : train) {
-            calcMinRequiedTime(t.trainData.getTimeTable());
+            calcMinRequiedTime(t.getTimeTable());
         }
 
         for (Train t : train) {
@@ -255,7 +255,7 @@ public abstract class LineData {
     public void drawTrainID(Graphics g) {
         for (Train t : train) {
             if (t.onDuty) {
-                String trainID = t.trainData.getTimeTable().getTrainID();
+                String trainID = t.getTimeTable().getTrainID();
                 Rectangle rect = t.getRect();
                 Point pos = new Point(rect.getLocation().x + rect.width / 2, rect.getLocation().y + rect.height / 2);
 

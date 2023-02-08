@@ -103,8 +103,8 @@ public abstract class RegionData {
 
     // 同じ列車と認識される条件
     protected boolean isSameTrain(Train train1, Train train2) {
-        String trainID1 = train1.trainData.getTimeTable().getTrainID();
-        String trainID2 = train2.trainData.getTimeTable().getTrainID();
+        String trainID1 = train1.getTimeTable().getTrainID();
+        String trainID2 = train2.getTimeTable().getTrainID();
         return trainID1.equals(trainID2);
     }
 
@@ -122,7 +122,7 @@ public abstract class RegionData {
     public void drawTrainID(Graphics g) {
         for (Train t : train) {
             if (t.onDuty) {
-                String trainID = t.trainData.getTimeTable().getTrainID();
+                String trainID = t.getTimeTable().getTrainID();
                 Rectangle rect = t.getRect();
                 Point pos = new Point(rect.getLocation().x + rect.width / 2, rect.getLocation().y + rect.height / 2);
 

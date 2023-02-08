@@ -16,7 +16,8 @@ import data.train_data.TrainData;
 public class Train {
     public static final int NONE = -1;
 
-    public TrainData trainData;
+    private TrainData trainData;
+
     private LineData lineData;
 
     // 列車の状態
@@ -348,10 +349,6 @@ public class Train {
         return imgOutside;
     }
 
-    public Color getTypeColor() {
-        return lineData.getTypeColor(this.trainData);
-    }
-
     public void combine(Train nextTrain) {
         this.trainData = this.trainData.combine(nextTrain.trainData);
     }
@@ -374,12 +371,24 @@ public class Train {
     // --------------------------------------------------------------------------------
     // インタフェース
     // --------------------------------------------------------------------------------
+    public Image getImage() {
+        return image;
+    }
+
     public LineData getLineData() {
         return this.lineData;
     }
 
-    public Image getImage() {
-        return image;
+    public int getOperationDate() {
+        return trainData.getOperationDate();
+    }
+
+    public TimeTable getTimeTable() {
+        return trainData.getTimeTable();
+    }
+
+    public Color getTypeColor() {
+        return lineData.getTypeColor(this.trainData);
     }
 
     // --------------------------------------------------------------------------------
