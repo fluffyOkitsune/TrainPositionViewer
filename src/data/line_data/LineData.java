@@ -3,6 +3,7 @@ package data.line_data;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -12,6 +13,7 @@ import data.time_table.StationData;
 import data.time_table.TimeTable;
 import data.time_table.TimeTableReader;
 import data.train_data.TrainData;
+import draw.Station;
 import draw.Train;
 
 // 路線のデータ
@@ -20,7 +22,8 @@ public abstract class LineData {
 
     public abstract String getLineName();
 
-    private StationData[] stationData;
+    private RegionData regionData;
+    private Station[] station;
     private Train[] train;
     private Map<Point, Time> minReqTime;
 
@@ -39,7 +42,7 @@ public abstract class LineData {
 
     public final void importCSV() throws FileNotFoundException {
         // 駅データの入力
-        setStationData(StationData.createStationData(this, getStationDataCsvPath()));
+        setStation(Station.convert(StationData.createStationData(this, getStationDataCsvPath())));
 
         // 列車運行データの入力
         TimeTable[] trainData;
@@ -75,6 +78,12 @@ public abstract class LineData {
         }
     }
 
+    public void calcStationPos() {
+        for(Station sta : station){
+            sta.calcPos();
+        }
+    }
+    
     // --------------------------------------------------------------------------------
     // 次の駅への最小の所要時間を計算する
     // --------------------------------------------------------------------------------
@@ -293,33 +302,41 @@ public abstract class LineData {
         }
     }
 
-    public void setStationData(StationData[] stationData) {
-        this.stationData = stationData;
+    public void setStation(Station[] station) {
+        this.station = station;
     }
 
-    public StationData[] getStationData() {
-        return stationData;
+    public Station[] getStation() {
+        return station;
     }
 
     public StationData getStationData(int staID) {
-        return stationData[staID];
+        return station[staID].getStationData();
     }
 
     public StationData getStationData(String name) {
-        for (StationData station : stationData) {
-            if (name.equals(station.getName())) {
-                return station;
+        for (Station sta : station) {
+            if (name.equals(sta.getName())) {
+                return sta.getStationData();
             }
         }
         return null;
     }
 
     public float getDistProportion(int staID) {
-        return stationData[staID].getDistProportion();
+        return station[staID].getDistProportion();
     }
 
     public final int numStation() {
-        return stationData.length;
+        return station.length;
+    }
+
+    public RegionData getRegionData() {
+        return regionData;
+    }
+
+    public void setRegionData(RegionData regionData) {
+        this.regionData = regionData;
     }
 
     public void setTrain(Train[] train) {

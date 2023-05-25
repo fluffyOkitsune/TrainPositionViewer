@@ -2,7 +2,6 @@ package data.line_data;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -17,6 +16,8 @@ import java.util.Vector;
 import data.Time;
 import data.line_data.LineData.Direction;
 import data.time_table.StationData;
+import data.train_data.TrainData;
+import draw.Station;
 import draw.Train;
 
 public abstract class RegionData {
@@ -42,6 +43,7 @@ public abstract class RegionData {
             for (LineData ld : lineData) {
                 ld.importCSV();
                 ld.compilePosOnLinePath();
+                ld.calcStationPos();
 
                 for (Train t : ld.getTrain()) {
                     vTrain.add(t);
@@ -169,9 +171,9 @@ public abstract class RegionData {
         // 駅を書く
         final int radiusOut = 20;
         final int radiusIn = 15;
-        for (StationData sd : lineData.getStationData()) {
-            Point posO = lineData.calcPosOnLinePath(sd.getDistProportion(), Direction.OUTBOUND);
-            Point posI = lineData.calcPosOnLinePath(sd.getDistProportion(), Direction.INBOUND);
+        for (Station station : lineData.getStation()) {
+            Point posO = lineData.calcPosOnLinePath(station.getDistProportion(), Direction.OUTBOUND);
+            Point posI = lineData.calcPosOnLinePath(station.getDistProportion(), Direction.INBOUND);
             Point pos = new Point((posO.x + posI.x) / 2, (posO.y + posI.y) / 2);
 
             // 駅の位置を描画する
@@ -257,23 +259,9 @@ public abstract class RegionData {
         }
     }
 
-    private static final Font FONT_STA_NAME = new Font(null, Font.PLAIN, 10);
-
     private void drawStaName(Graphics g, LineData lineData) {
-        for (StationData stationData : lineData.getStationData()) {
-            Point pos = stationData.calcStationPos();
-            String staName = stationData.getName();
-
-            // TODO: 縁取り(暫定)
-            g.setFont(FONT_STA_NAME);
-            g.setColor(Color.WHITE);
-            for (int i = 0; i < 9; i++) {
-                Point offsetPos = new Point(pos.x + i / 3 - 1, pos.y + i % 3 - 1);
-                LineData.drawString(g, staName, offsetPos);
-            }
-
-            g.setColor(lineData.getLineColor());
-            LineData.drawString(g, staName, pos);
+        for (Station station : lineData.getStation()) {
+            station.drawStaName(g);
         }
     }
 
