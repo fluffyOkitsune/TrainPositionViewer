@@ -12,6 +12,7 @@ import data.Time;
 import data.line_data.LineData;
 import data.line_data.LineData.Direction;
 import data.train_data.TrainData;
+import draw.Station;
 import draw.Train;
 
 public class TimeTableTest {
@@ -101,7 +102,7 @@ public class TimeTableTest {
                 new StationData(3, lineData, "D", 0.3f),
                 new StationData(4, lineData, "E", 0.4f)
         };
-        lineData.setStationData(testStationDatas);
+        lineData.setStation(Station.convert(testStationDatas));
 
         TimeTable timeTable = createTestData(lineData);
         Train[] train = { new Train(lineData, new TrainData(timeTable, lineData)) };
